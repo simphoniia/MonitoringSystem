@@ -24,8 +24,8 @@ class MemoryAgent {
   double ram_total_{};
   double ram_usage_{};
   double hard_usage_{};
-  size_t hard_io_persec{};
-  double hard_throughput{};
+  size_t hard_io_persec_{};
+  double hard_throughput_{};
 };
 };  // namespace s21
 
