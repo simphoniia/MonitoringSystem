@@ -28,11 +28,11 @@ std::string SubFunctions::ExecCommand(const char* cmd) {
   return result;
 }
 
-std::string SubFunctions::GetOnlyDigits(std::string& output) {
+std::string SubFunctions::GetOnlyDigits(std::string& input) {
   std::string new_string;
-  new_string.reserve(output.size());
+  new_string.reserve(input.size());
 
-  std::copy_if(output.begin(), output.end(), std::back_inserter(new_string),
+  std::copy_if(input.begin(), input.end(), std::back_inserter(new_string),
                [](const char symbol) -> bool {
                  if (std::isdigit(symbol) || symbol == '.') return true;
                  return false;

@@ -15,8 +15,8 @@ class MemoryAgent {
   double GetRamTotal() { return ram_total_; }
   double GetRamUsage() { return ram_usage_; }
   double GetHardUsage() { return hard_usage_; }
-  size_t GetHardIOoperations() { return hard_io_persec; }
-  double GetHardThroughput() { return hard_throughput; }
+  size_t GetHardIOoperations() { return hard_io_persec_; }
+  double GetHardThroughput() { return hard_throughput_; }
 
   void RefreshData();
 
