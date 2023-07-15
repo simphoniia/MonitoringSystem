@@ -2,7 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
-void s21::CpuAgent::RefreshData() {
+void s21::CpuAgent::RefreshData(std::ofstream &file) {
+  if (!file.is_open()) return;
   static std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";
   static std::string get_process_count =
@@ -25,4 +26,6 @@ void s21::CpuAgent::RefreshData() {
   } catch (...) {
     std::cerr << "convertaion error!";
   }
+  file << "cput_agent: cpu: " << cpu_loading_
+       << " | processes: " << process_count_ << '\n';
 }

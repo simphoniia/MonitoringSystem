@@ -4,13 +4,9 @@
 #include "base_agent.h"
 
 namespace s21 {
-class SystemAgent {
+class SystemAgent : public s21::BaseAgent {
  public:
-  long GetInodes() const { return inodes_; };
-  double GetHardReadTime() const { return hard_read_time_; };
-  int GetSystemErrors() const { return system_errors_; };
-  int GetUSerAuths() const { return user_auths_; };
-  void RefreshData();
+  void RefreshData(std::ofstream &file) override;
 
  private:
   long inodes_{};

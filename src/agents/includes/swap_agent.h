@@ -1,18 +1,12 @@
 #ifndef SRC_AGENT_INCLUDES_SWAP_AGENT_H_
 #define SRC_AGENT_INCLUDES_SWAP_AGENT_H_
 
-#include <algorithm>
-#include <array>
-#include <iostream>
-#include <memory>
+#include "base_agent.h"
 
 namespace s21 {
-class SwapAgent {
+class SwapAgent : public s21::BaseAgent {
  public:
-  double GetTotalSwap() const { return total_swap_; };
-  double GetUsedSwap() const { return used_swap_; };
-  int GetProcQueueLength() const { return proc_queue_length_; };
-  void RefreshData();
+  void RefreshData(std::ofstream &file) override;
 
  private:
   double total_swap_{};
