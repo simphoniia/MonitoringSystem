@@ -1,17 +1,12 @@
 #ifndef SRC_AGENT_INCLUDES_CPU_AGENT_H_
 #define SRC_AGENT_INCLUDES_CPU_AGENT_H_
 
-#include <algorithm>
-#include <array>
-#include <iostream>
-#include <memory>
+#include "base_agent.h"
 
 namespace s21 {
-class CpuAgent {
+class CpuAgent : public s21::BaseAgent {
  public:
-  double GetCpuLoading() { return cpu_loading_; }
-  int GetProcessCount() { return process_count_; }
-  void RefreshData();
+  void RefreshData(std::ofstream &file) override;
 
  private:
   double cpu_loading_{};

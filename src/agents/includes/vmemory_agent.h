@@ -1,17 +1,12 @@
 #ifndef SRC_AGENT_INCLUDES_VMEMORY_AGENT_H_
 #define SRC_AGENT_INCLUDES_VMEMORY_AGENT_H_
 
-#include <algorithm>
-#include <array>
-#include <iostream>
-#include <memory>
+#include "base_agent.h"
 
 namespace s21 {
-class VmemoryAgent {
+class VmemoryAgent : public s21::BaseAgent {
  public:
-  double GetVirtualMemVolume() { return virtual_mem_volume_; };
-  double GetVirtualMemFree() { return virtual_mem_free_; };
-  void RefreshData();
+  void RefreshData(std::ofstream &file) override;
 
  private:
   double virtual_mem_volume_{};
