@@ -5,7 +5,8 @@
 double GetDiskReadTime(std::string command, int position);
 double ReadTimeCalculation(const std::string &command);
 
-void s21::SystemAgent::RefreshData() {
+void s21::SystemAgent::RefreshData(std::ofstream &file) {
+  if (!file.is_open()) return;
   static const std::string get_inodes{
       "df -i | sed -n '2p' | awk '{print $7}'"};  // ???
   static const std::string get_number_of_disks{
@@ -34,6 +35,10 @@ void s21::SystemAgent::RefreshData() {
   } catch (...) {
     std::cerr << "convertaion error!";
   }
+  file << "system_agene: inodes: " << inodes_
+       << " | system_errors: " << system_errors_
+       << " | user_auths: " << user_auths_
+       << " | hard_read_time: " << hard_read_time_ << " MB/s\n";
 }
 
 double GetDiskReadTime(std::string command, int position) {

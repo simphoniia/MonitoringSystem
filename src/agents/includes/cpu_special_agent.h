@@ -6,9 +6,6 @@
 namespace s21 {
 class CpuSpecialAgent : public s21::BaseAgent {
  public:
-  double GetCpuIdleUsage() { return cpu_idle_usage_; };
-  double GetCpuUserUsage() { return cpu_user_usage_; };
-  double GetCpuPrivelegedUsage() { return cpu_priveleged_usage_; };
   void RefreshData(std::ofstream &file) override;
 
  private:

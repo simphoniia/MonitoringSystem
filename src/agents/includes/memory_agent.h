@@ -7,18 +7,12 @@
 // [int] количество операций ввода-вывода для жесткого диска в секунду
 // (hard_ops) [double] пропускная способность жесткого диска (hard_throughput)
 
-#include <iostream>
+#include "base_agent.h"
 
 namespace s21 {
-class MemoryAgent {
+class MemoryAgent : public s21::BaseAgent {
  public:
-  double GetRamTotal() { return ram_total_; }
-  double GetRamUsage() { return ram_usage_; }
-  double GetHardUsage() { return hard_usage_; }
-  size_t GetHardIOoperations() { return hard_io_persec; }
-  double GetHardThroughput() { return hard_throughput; }
-
-  void RefreshData();
+  void RefreshData(std::ofstream &file) override;
 
  private:
   double ram_total_{};

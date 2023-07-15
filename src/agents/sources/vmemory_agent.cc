@@ -4,7 +4,8 @@
 
 double GetPage(const std::string& command);
 
-void s21::VmemoryAgent::RefreshData() {
+void s21::VmemoryAgent::RefreshData(std::ofstream& file) {
+  if (!file.is_open()) return;
   // размер листа в байтах
   const std::string get_virtual_page_size{
       "vm_stat | grep 'page size' | awk '{print $8}'"};
@@ -32,6 +33,8 @@ void s21::VmemoryAgent::RefreshData() {
   virtual_mem_volume_ = (pages_free + pages_active + pages_inactive +
                          pages_speculative + pages_wired_down) *
                         page_size / 1024 / 1024;
+  file << "v_memory_agent: virtual_mem_volume: " << virtual_mem_volume_ << " MB"
+       << " | virtual_mem_free: " << virtual_mem_free_ << " MB\n";
 }
 
 double GetPage(const std::string& command) {

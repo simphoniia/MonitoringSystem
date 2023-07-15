@@ -2,7 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
-void s21::SwapAgent::RefreshData() {
+void s21::SwapAgent::RefreshData(std::ofstream &file) {
+  if (!file.is_open()) return;
   const std::string get_total_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $4)}'"};
   const std::string get_used_swap{
@@ -27,4 +28,7 @@ void s21::SwapAgent::RefreshData() {
   } catch (...) {
     std::cerr << "convertaion error!";
   }
+  file << "swap_agent: total_swap: " << total_swap_
+       << " | used_swap: " << used_swap_
+       << " | proc_queue_length: " << proc_queue_length_ << '\n';
 }
