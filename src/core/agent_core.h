@@ -3,9 +3,11 @@
 #include <chrono>
 #include <fstream>
 #include <iomanip>
+#include <set>
 #include <sstream>
 #include <string>
 
+#include "../agents/includes/base_agent.h"
 #include "../agents/includes/cpu_agent.h"
 #include "../agents/includes/cpu_special_agent.h"
 #include "../agents/includes/memory_agent.h"
@@ -18,20 +20,18 @@ namespace s21 {
 class AgentCore {
  public:
   void UpdateMetrics();
+  void CheckNewAgents();
 
  private:
-  s21::CpuAgent cpu_agent_;
-  s21::CpuSpecialAgent cpu_special_agent_;
-  s21::MemoryAgent memory_agent_;
-  s21::NetworkAgent network_agent_;
-  s21::SwapAgent swap_agent_;
-  s21::SystemAgent system_agent_;
-  s21::VmemoryAgent vmemory_agent_;
   std::ofstream file_;
   std::string timestamp_;
+  std::set<std::pair<bool, s21::BaseAgent*>> agents_ = {
+      {true, new s21::CpuAgent},    {true, new s21::CpuSpecialAgent},
+      {true, new s21::MemoryAgent}, {true, new s21::NetworkAgent},
+      {true, new s21::SwapAgent},   {true, new s21::SystemAgent},
+      {true, new s21::VmemoryAgent}};
 
   void LogFileCreation();
-  void InsertToFile();
   void ChangeTimestamp();
 };
 }  // namespace s21

@@ -1,48 +1,64 @@
-TIMASTAMP: <16:47:19>
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 10.82 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 425
- cpu_special_agent: idle: 79 | user: 4 | priveleged: 13
-v_memory_agent: virtual_mem_volume: 32766.9 MB | virtual_mem_free: 13621.4 MB
- | cpu: 19.53 | processes: 425 | ram_total 32768 | ram: 13 | hard_volume: 3.3 | hard_ops: 0 | hard_throughput: 698.796TIMASTAMP: <16:47:24>
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0.01 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 425
- cpu_special_agent: idle: 78 | user: 6 | priveleged: 13
-v_memory_agent: virtual_mem_volume: 32766 MB | virtual_mem_free: 13620.5 MB
- | cpu: 21.7 | processes: 425 | ram_total 32768 | ram: 13 | hard_volume: 3.3 | hard_ops: 0 | hard_throughput: 701.93TIMASTAMP: <16:47:30>
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 425
- cpu_special_agent: idle: 74 | user: 4 | priveleged: 14
-v_memory_agent: virtual_mem_volume: 32766.8 MB | virtual_mem_free: 13597.5 MB
- | cpu: 26.64 | processes: 425 | ram_total 32768 | ram: 13 | hard_volume: 3.3 | hard_ops: 63 | hard_throughput: 693.886TIMASTAMP: <16:47:35>
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 425
- cpu_special_agent: idle: 23 | user: 11 | priveleged: 11
-v_memory_agent: virtual_mem_volume: 32766.7 MB | virtual_mem_free: 13613.3 MB
- | cpu: 20.48 | processes: 425 | ram_total 32768 | ram: 13 | hard_volume: 3.3 | hard_ops: 1 | hard_throughput: 647.258TIMASTAMP: <16:56:12>
-cput_agent: cpu: 22.59 | processes: 434
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0.01 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 434
-memory_agent: ram_total 32768 | ram: 13 | hard_volume: 3.7 | hard_ops: 1 | hard_throughput: 637.844
- cpu_special_agent: idle: 78 | user: 4 | priveleged: 12
-v_memory_agent: virtual_mem_volume: 32766.3 MB | virtual_mem_free: 13133.4 MB
-TIMASTAMP: <16:56:17>
-cput_agent: cpu: 22.8 | processes: 436
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 436
-memory_agent: ram_total 32768 | ram: 13 | hard_volume: 3.7 | hard_ops: 194 | hard_throughput: 708.029
- cpu_special_agent: idle: 78 | user: 5 | priveleged: 13
-v_memory_agent: virtual_mem_volume: 32766.6 MB | virtual_mem_free: 13110.2 MB
-TIMASTAMP: <16:56:23>
-cput_agent: cpu: 19.72 | processes: 436
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 436
-memory_agent: ram_total 32768 | ram: 13 | hard_volume: 3.7 | hard_ops: 1 | hard_throughput: 596.812
- cpu_special_agent: idle: 74 | user: 5 | priveleged: 13
-v_memory_agent: virtual_mem_volume: 32766.1 MB | virtual_mem_free: 13129.2 MB
-TIMASTAMP: <16:56:29>
-cput_agent: cpu: 21.23 | processes: 436
-system_agene: inodes: 10035388914 | system_errors: 5588 | user_auths: 162 | hard_read_time: 0 MB/s
-swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 436
-memory_agent: ram_total 32768 | ram: 13 | hard_volume: 3.7 | hard_ops: 1 | hard_throughput: 520.704
- cpu_special_agent: idle: 80 | user: 7 | priveleged: 13
-v_memory_agent: virtual_mem_volume: 32765.7 MB | virtual_mem_free: 13134.4 MB
+TIMASTAMP: <19:08:37>
+cput_agent: cpu: 24.57 | processes: 492
+cpu_special_agent: idle: 79 | user: 7 | priveleged: 18
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 0 | hard_throughput: 633.988
+network_agent: site_connection: 1 | inet_throughput: 45.2861
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 493
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0.01 MB/s
+v_memory_agent: virtual_mem_volume: 32766.3 MB | virtual_mem_free: 11705.7 MB
+TIMASTAMP: <19:08:43>
+cput_agent: cpu: 20.36 | processes: 493
+cpu_special_agent: idle: 82 | user: 5 | priveleged: 13
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 3 | hard_throughput: 699.529
+network_agent: site_connection: 1 | inet_throughput: 45.2861
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 1
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 2.74 MB/s
+v_memory_agent: virtual_mem_volume: 32765.8 MB | virtual_mem_free: 11704.1 MB
+TIMASTAMP: <19:08:50>
+cput_agent: cpu: 31.75 | processes: 493
+cpu_special_agent: idle: 70 | user: 6 | priveleged: 14
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 57 | hard_throughput: 709.289
+network_agent: site_connection: 1 | inet_throughput: 45.2862
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 1
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0 MB/s
+v_memory_agent: virtual_mem_volume: 32767.1 MB | virtual_mem_free: 11697.2 MB
+TIMASTAMP: <19:08:56>
+cput_agent: cpu: 20.57 | processes: 493
+cpu_special_agent: idle: 79 | user: 6 | priveleged: 15
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 0 | hard_throughput: 617.964
+network_agent: site_connection: 1 | inet_throughput: 45.2863
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 492
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0.65 MB/s
+v_memory_agent: virtual_mem_volume: 32767 MB | virtual_mem_free: 11721.1 MB
+TIMASTAMP: <19:09:03>
+cput_agent: cpu: 20.65 | processes: 492
+cpu_special_agent: idle: 77 | user: 12 | priveleged: 16
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 0 | hard_throughput: 634.893
+network_agent: site_connection: 1 | inet_throughput: 45.2864
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 492
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 1.41 MB/s
+v_memory_agent: virtual_mem_volume: 32766.5 MB | virtual_mem_free: 11699.4 MB
+TIMASTAMP: <19:09:10>
+cput_agent: cpu: 25.6 | processes: 492
+cpu_special_agent: idle: 75 | user: 22 | priveleged: 13
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 1 | hard_throughput: 715.543
+network_agent: site_connection: 1 | inet_throughput: 45.2866
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 1
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0.13 MB/s
+v_memory_agent: virtual_mem_volume: 32766.8 MB | virtual_mem_free: 11688.4 MB
+TIMASTAMP: <19:09:16>
+cput_agent: cpu: 23.5 | processes: 492
+cpu_special_agent: idle: 70 | user: 10 | priveleged: 14
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 194 | hard_throughput: 644.42
+network_agent: site_connection: 1 | inet_throughput: 45.2867
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 491
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0 MB/s
+v_memory_agent: virtual_mem_volume: 32766.2 MB | virtual_mem_free: 11687.6 MB
+TIMASTAMP: <19:09:23>
+cput_agent: cpu: 24.31 | processes: 492
+cpu_special_agent: idle: 80 | user: 6 | priveleged: 16
+memory_agent: ram_total 32768 | ram: 15 | hard_volume: 3.8 | hard_ops: 0 | hard_throughput: 686.217
+network_agent: site_connection: 1 | inet_throughput: 45.2868
+swap_agent: total_swap: 0 | used_swap: 0 | proc_queue_length: 491
+system_agene: inodes: 10035388914 | system_errors: 5592 | user_auths: 162 | hard_read_time: 0 MB/s
+v_memory_agent: virtual_mem_volume: 32766.7 MB | virtual_mem_free: 11658.4 MB

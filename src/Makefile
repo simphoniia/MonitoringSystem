@@ -1,7 +1,7 @@
 PROJECT_NAME 	= 	s21_MonitoringSystem
 DIRS			=	agents
 gcc				= 	gcc $(flags)
-flags			= 	-lstdc++ -Werror -Wall -Wextra
+flags			= 	-lstdc++fs -Werror -Wall -Wextra
 SOURCES		   :=	$(shell find $(DIRS)/sources -name '*.cc')
 SOURCES		   +=   $(shell find core -name '*.cc')
 LIBS			= 	libs/agents_lib

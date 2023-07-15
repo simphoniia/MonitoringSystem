@@ -10,17 +10,14 @@
 void s21::AgentCore::UpdateMetrics() {
   LogFileCreation();
   ChangeTimestamp();
-
-  cpu_agent_.RefreshData(file_);
-  system_agent_.RefreshData(file_);
-  swap_agent_.RefreshData(file_);
-  memory_agent_.RefreshData(file_);
-  network_agent_.RefreshData(file_);
-  cpu_special_agent_.RefreshData(file_);
-  vmemory_agent_.RefreshData(file_);
+  for (auto it = agents_.begin(); it != agents_.end(); ++it) {
+    if ((*it).first == true) (*it).second->RefreshData(file_);
+  }
 
   file_.close();
 }
+
+void s21::AgentCore::CheckNewAgents() {}
 
 void s21::AgentCore::LogFileCreation() {
   auto now = std::chrono::system_clock::now();
