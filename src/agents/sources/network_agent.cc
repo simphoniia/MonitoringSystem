@@ -23,7 +23,7 @@ void s21::NetworkAgent::RefreshData(std::ofstream &file) {
 }
 
 double InetThroughputInfo() {
-    static std::string get_inet_throughput = "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - | grep -e Download:";
+    static std::string get_inet_throughput = "netstat -bI en0 | awk '{print ($7+$10)}' | tail -1";
     std::string res = SubFunctions::ExecCommand(get_inet_throughput.c_str());
 
     std::cout << res << "\n";
@@ -32,6 +32,9 @@ double InetThroughputInfo() {
     try {
         if (!res.empty())
             download_speed = std::stod(SubFunctions::GetOnlyDigits(res));
+        download_speed /= 1024;
+        download_speed /= 1024;
+        download_speed /= 1024;
     } catch(...) {
         std::cout << "Internet throughput cast error.\n";
     }
