@@ -15,6 +15,7 @@ void s21::AgentCore::UpdateMetrics() {
   system_agent_.RefreshData(file_);
   swap_agent_.RefreshData(file_);
   memory_agent_.RefreshData(file_);
+  network_agent_.RefreshData(file_);
   cpu_special_agent_.RefreshData(file_);
   vmemory_agent_.RefreshData(file_);
 

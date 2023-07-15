@@ -1,5 +1,8 @@
 #include "../includes/network_agent.h"
 
+double InetThroughputInfo();
+bool IsSiteConnectionUp(const char* site);
+
 void s21::NetworkAgent::RefreshData(std::ofstream &file) {
     if (!file.is_open()) return;
 
@@ -8,13 +11,22 @@ void s21::NetworkAgent::RefreshData(std::ofstream &file) {
 
 
     site_access_ = IsSiteConnectionUp(site);
-    inet_throughput_ = GetInetThroughput();
+    inet_throughput_ = InetThroughputInfo();
+
+    file << "network_agent: site_connection: ";
+
+    if (site_access_) file << "1";
+    else file << "0";
+
+    file << " | inet_throughput: " << inet_throughput_ << "\n";
 
 }
 
 double InetThroughputInfo() {
     static std::string get_inet_throughput = "curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - | grep -e Download:";
     std::string res = SubFunctions::ExecCommand(get_inet_throughput.c_str());
+
+    std::cout << res << "\n";
     double download_speed{}; 
     
     try {
@@ -36,5 +48,5 @@ bool IsSiteConnectionUp(const char* site) {
 
     bool connection = SubFunctions::GetOnlyDigits(result).empty();
 
-    return connection;
+    return !connection;
 }

@@ -23,6 +23,7 @@ class AgentCore {
   s21::CpuAgent cpu_agent_;
   s21::CpuSpecialAgent cpu_special_agent_;
   s21::MemoryAgent memory_agent_;
+  s21::NetworkAgent network_agent_;
   s21::SwapAgent swap_agent_;
   s21::SystemAgent system_agent_;
   s21::VmemoryAgent vmemory_agent_;
