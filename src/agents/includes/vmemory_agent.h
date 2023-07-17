@@ -6,12 +6,17 @@
 namespace s21 {
 class VmemoryAgent : public s21::BaseAgent {
  public:
-  void RefreshData(std::ofstream &file) override;
+  void RefreshData(std::ofstream& file) override;
 
  private:
   double virtual_mem_volume_{};
   double virtual_mem_free_{};
 };
+
+extern "C" {
+s21::VmemoryAgent* CreateObject();
+}
+
 };  // namespace s21
 
 #endif  //  SRC_AGENT_INCLUDES_VMEMORY_AGENT_H_

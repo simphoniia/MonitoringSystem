@@ -2,6 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
+s21::SystemAgent *s21::CreateObject() { return new s21::SystemAgent; }
+
 double GetDiskReadTime(std::string command, int position);
 double ReadTimeCalculation(const std::string &command);
 

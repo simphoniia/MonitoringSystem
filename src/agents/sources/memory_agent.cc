@@ -2,6 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
+s21::MemoryAgent* s21::CreateObject() { return new s21::MemoryAgent; }
+
 double GetRamTotal(const std::string& command);
 double GetRamUsage(const std::string& command);
 double GetHardUsage(const std::string& command);

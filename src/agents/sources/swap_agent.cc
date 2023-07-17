@@ -2,7 +2,9 @@
 
 #include "Utils/sub_functions.h"
 
-void s21::SwapAgent::RefreshData(std::ofstream &file) {
+s21::SwapAgent* s21::CreateObject() { return new s21::SwapAgent; }
+
+void s21::SwapAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
   const std::string get_total_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $4)}'"};
