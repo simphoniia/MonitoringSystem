@@ -28,7 +28,7 @@ std::string SubFunctions::ExecCommand(const char* cmd) {
   return result;
 }
 
-std::string SubFunctions::GetOnlyDigits(std::string& input) {
+std::string SubFunctions::GetOnlyDigits(const std::string& input) {
   std::string new_string;
   new_string.reserve(input.size());
 

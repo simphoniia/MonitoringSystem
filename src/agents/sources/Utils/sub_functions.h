@@ -11,7 +11,7 @@
 
 namespace SubFunctions {
 std::string ExecCommand(const char* cmd);
-std::string GetOnlyDigits(std::string& output);
+std::string GetOnlyDigits(const std::string& output);
 std::string GetIostatParam(int position);
 }  // namespace SubFunctions
 
