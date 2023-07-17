@@ -1,6 +1,15 @@
 #include "config_parser.h"
 
+/*
+    TODO:
+    Need to parse log file from end to begin;
+
+*/
+
+
 bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
+std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos);
+int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_);
 
 bool Compare(double val1, double val2, kCompareType& statement) {
     bool result = false;
@@ -19,7 +28,7 @@ bool Compare(double val1, double val2, kCompareType& statement) {
     return result;
 }
 
-std::string Config::Update() {
+std::string Config::Update(std::ifstream& log_file) {
     int error{};
     std::string error_message;
 
@@ -35,7 +44,136 @@ std::string Config::Update() {
     if (error) 
         error_message = "Could not to create a config file.";
 
+    ParseConfFiles();
+
+    ParseLog(log_file);
+
     return error_message;
+}
+
+std::string Config::ParseLog(std::ifstream& log_file) {
+    
+    static std::vector<std::string> data = {
+        "cpu: ",
+        "processes: ",
+    };
+    
+    size_t newest_info{};
+    size_t offset;
+    std::string line;
+
+    size_t counter{};
+    while (std::getline(log_file, line)) {
+        if (line.find("TIMESTAMP:") != std::string::npos) 
+            newest_info = counter;
+        counter++;
+
+        std::cout << "counter: " << counter << " newest: " << newest_info << "\n";
+    }
+
+
+
+    counter = 0;
+    while (std::getline(log_file, line)) {
+        if (newest_info >= counter) {
+            counter++;
+            continue;
+        }
+
+        offset = line.find(data[0]);
+        if (offset != std::string::npos)
+            std::cout << SubFunctions::GetOnlyDigits(line.substr(offset, line.find('|'))) << "\n";
+
+    }
+    
+
+
+    return line;
+}
+
+void Config::ParseConfFiles() {
+
+    std::vector<std::pair<std::string, int(*)(std::ifstream&, CPUAgentConfig&)>> files = {
+        { "agents_config/cpu_agent.conf", ParseCPU }
+    };
+    
+    std::ifstream current_file;
+    
+    for (auto& current_agent : files) {
+        current_file.open(current_agent.first);
+        if (current_file.is_open()) {
+            current_agent.second(current_file, cpu_);
+            current_file.close();
+        }
+    }
+}
+
+int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "load_metric=\"",
+        "processes_metric=\"",
+        "update_time="
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset != std::string::npos) {
+            offset += need_data[counter].size();
+            if (counter == 0)
+                cpu_.SetName(buffer.substr(offset, buffer.size()));
+            else if (counter == 1 || counter == 2) {
+                std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
+                if (pair_of_data.second == kCompareType::kNone) error_code = 1;
+                std::cout << "Value is " << pair_of_data.first << "\n";
+                if (!error_code)
+                    counter == 1 ? cpu_.SetCPULoadConfig(pair_of_data) : cpu_.SetProcNumber(pair_of_data);
+            } else if (counter == 3)
+                cpu_.SetUpdateTime(std::stoi(SubFunctions::GetOnlyDigits(buffer)));
+            counter++;
+        }
+    }
+    
+    return error_code;
+}
+
+std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos) {
+    static std::string probably_condition = "=><";
+    std::string condition;
+
+    if (probably_condition.find(data[pos]) != std::string::npos)
+        condition.push_back(data[pos]);
+
+    if (probably_condition.find(data[pos + 1]) != std::string::npos)
+        condition.push_back(data[pos + 1]);
+    
+    if (probably_condition.find(data[pos + 2]) != std::string::npos)
+        condition.clear();
+
+    static std::map<std::string, kCompareType> state_key = {
+        { ">=", kEqualGreater },
+        { ">", kGreater },
+        { "==", kEqual },
+        { "<", kLess },
+        {"<=", kEqualLess }
+    };
+
+    kCompareType if_state = state_key.find(condition)->second;
+
+    if (if_state == state_key.end()->second)
+        if_state = kCompareType::kNone;
+
+    std::string s_value = SubFunctions::GetOnlyDigits(data);
+    double value = std::stod(s_value);
+
+    return std::pair<double, kCompareType>(value, if_state);
 }
 
 inline bool Config::IsExistDirectory() {
@@ -84,31 +222,25 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
             "agent_name=CPU_AGENT\n",
             "agent_type=cpu_agent\n\n",
             "load_metric=\">= 50\"\n",
-            "load_update=4s\n\n",
             "processes_metric=\">= 1000\"\n",
-            "processes_update=4s\n"
+            "\nupdate_time=4"
         }, 
         {
             "agent_name=MEMORY_AGENT\n",
             "agent_type=memory_agent\n\n",
             "total_metric=\"\"\n",
-            "total_update=4s\n\n",
             "usage_metric=\">= 80\"\n",
-            "usage_update=4s\n\n",
             "volume_metric=\"<= 1.0\"\n",
-            "volume_update=4s\n\n",
             "hardops_metric=\"== 0\"\n",
-            "hardops_update=4s\n\n",
             "hardthroughput_metric=\"== 0\"\n",
-            "hardthroughput_update=4s\n"
+            "\nupdate_time=4\n"
         },
         {
             "agent_name=NETWORK_AGENT\n",
             "agent_type=network_agent\n\n",
             "url=\"2ip.ru\"\n",
-            "url_update=5s\n\n",
             "inet_throughput_metric=\"> 0\"\n",
-            "inet_throughput_update=5s\n"
+            "update_time=5\n"
         }
     };
 
