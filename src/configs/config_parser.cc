@@ -1,5 +1,7 @@
 #include "config_parser.h"
 
+bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
+
 bool Compare(double val1, double val2, kCompareType& statement) {
     bool result = false;
 
@@ -25,26 +27,18 @@ std::string Config::Update() {
     if (!IsExistDirectory()) 
         error = CreateDirectory();
     
-    if (error) {
+    if (error) 
         error_message = "Could not to create a /agents_config/ directory";
-        return error_message;
-    }
 
-    
     error = CheckFiles();
 
-    if (error) {
+    if (error) 
         error_message = "Could not to create a config file.";
-        return error_message;
-    }
-
-
-
 
     return error_message;
 }
 
-bool Config::IsExistDirectory() {
+inline bool Config::IsExistDirectory() {
     return std::filesystem::is_directory("./agents_config/");
 }
 
@@ -58,100 +52,83 @@ int Config::CreateDirectory() {
 
 int Config::CheckFiles() {
     int error = 0;
-    static std::vector<std::string> agents_config = {
-        "global_config.conf",
+
+    static std::vector<std::string> agents_config = {  
         "cpu_agent.conf",
         "memory_agent.conf",
-        "network_agent.conf",
-        "special_agent.conf"
+        "network_agent.conf"
+        //"special_agent.conf"
     };
 
-    std::ifstream config_file;
-    for (size_t i = 0; i < agents_config.size(); i++) {
-        config_file.open("agents_configs/" + agents_config[i]);
-        if (!config_file.is_open())
-            error += CreateDefaultFiles(agents_config[i]);
-        else
-            config_file.close();
+    for (size_t i = 0; i < agents_config.size() && !error; i++) {
+        std::string path = "./agents_config/" + agents_config[i];
+        
+        if (!std::filesystem::exists(path))
+            error = CreateDefaultFiles(std::pair<std::string, int>(agents_config[i], i));
     }
 
     return error;
 }
 
-bool CreateDefaultGlobal(const std::string& name);
-bool CreateDefaultCPU(const std::string& name);
+inline int CreateFile(const std::string& file_name, const std::string& folder) {
+    SubFunctions::ExecCommand(std::string("touch " + folder + "/" + file_name).c_str());
+    return !std::filesystem::exists(folder + "/" + file_name);
+} 
 
-
-int Config::CreateDefaultFiles(const std::string& path) {
+int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
     int error = 0;
 
-    static std::set<std::pair<std::string, bool(*)(const std::string&)>> functions = {
-        {"global_config.conf", CreateDefaultGlobal},
-        {"cpu_agent.conf", CreateDefaultCPU}
+    static std::string folder_name = "agents_config";
+    static std::vector<std::vector<std::string>> default_file_data = {
+        {
+            "agent_name=CPU_AGENT\n",
+            "agent_type=cpu_agent\n\n",
+            "load_metric=\">= 50\"\n",
+            "load_update=4s\n\n",
+            "processes_metric=\">= 1000\"\n",
+            "processes_update=4s\n"
+        }, 
+        {
+            "agent_name=MEMORY_AGENT\n",
+            "agent_type=memory_agent\n\n",
+            "total_metric=\"\"\n",
+            "total_update=4s\n\n",
+            "usage_metric=\">= 80\"\n",
+            "usage_update=4s\n\n",
+            "volume_metric=\"<= 1.0\"\n",
+            "volume_update=4s\n\n",
+            "hardops_metric=\"== 0\"\n",
+            "hardops_update=4s\n\n",
+            "hardthroughput_metric=\"== 0\"\n",
+            "hardthroughput_update=4s\n"
+        },
+        {
+            "agent_name=NETWORK_AGENT\n",
+            "agent_type=network_agent\n\n",
+            "url=\"2ip.ru\"\n",
+            "url_update=5s\n\n",
+            "inet_throughput_metric=\"> 0\"\n",
+            "inet_throughput_update=5s\n"
+        }
     };
 
-    for (auto& var : functions) {
-        if (var.first == path) 
-            var.second(path);
-    }
+    error = CreateFileWithData(agents_name.first, folder_name, default_file_data[agents_name.second]);
 
     return error;
 }
 
-void FillFile(std::ofstream& obj, const std::vector<std::string>& data) {
-    for (auto& line : data) {
-        obj << line;
+inline void FillFile(std::ofstream& stream, const std::vector<std::string>& data) {
+    for (auto& line : data) stream << line;
+}
+
+bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data) {
+    bool is_created_file = !CreateFile(file_name, folder_name);
+    if (is_created_file) {
+        std::ofstream file;
+        file.open(folder_name + "/" + file_name);
+        FillFile(file, data);
+        file.close();
     }
-}
 
-bool CreateDefaultGlobal(const std::string& name) {
-    static std::vector<std::string> default_file = {
-        "#   If TOTAL_UPDATE_TIME not null\n",
-        "#   data will refresh by this counter;\n",
-        "#   Otherwise each metric has personal update time;\n",
-        "#   Mininum time for update is 10 seconds.\n",
-        "\n",
-        "TOTAL_UPDATE_TIME=10s\n",
-        "\n",
-        "CPU_AGENT=ON\n",
-        "MEMORY_AGENT=ON\n",
-        "NETWORK_AGENT=ON\n"
-    };
-
-    std::string full_path = "touch agents_config/" + name;
-    SubFunctions::ExecCommand(full_path.c_str());
-
-    std::ofstream file;
-    file.open("agents_config/" + name);
-
-    FillFile(file, default_file);
-
-    file.close();
-    return true;
-}
-
-bool CreateDefaultCPU(const std::string& name) {
-    static std::vector<std::string> default_file = {
-        "#   If TOTAL_UPDATE_TIME not null\n",
-        "#   data will refresh by this counter;\n",
-        "#   Otherwise each metric has personal update time;\n",
-        "#   Mininum time for update is 10 seconds.\n",
-        "\n",
-        "TOTAL_UPDATE_TIME=10s\n",
-        "\n",
-        "CPU_AGENT=ON\n",
-        "MEMORY_AGENT=ON\n",
-        "NETWORK_AGENT=ON\n"
-    };
-
-    std::string full_path = "touch agents_config/" + name;
-    SubFunctions::ExecCommand(full_path.c_str());
-
-    std::ofstream file;
-    file.open("agents_config/" + name);
-
-    FillFile(file, default_file);
-
-    file.close();
-    return true;
+    return !is_created_file;
 }

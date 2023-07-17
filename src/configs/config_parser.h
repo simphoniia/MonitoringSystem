@@ -29,7 +29,7 @@ class Config {
         int CreateDirectory();
 
         int CheckFiles();
-        int CreateDefaultFiles(const std::string& path);
+        int CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
         // void FillConfigFiles();
         // void ParseConfigFiles();
         // const std::string& GetAgentsInfo();
