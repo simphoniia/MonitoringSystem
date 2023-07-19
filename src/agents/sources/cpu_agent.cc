@@ -28,6 +28,6 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   } catch (...) {
     std::cerr << "convertaion error!";
   }
-  file << "cput_agent: cpu: " << cpu_loading_
+  file << "cpu_agent: cpu: " << cpu_loading_
        << " | processes: " << process_count_ << '\n';
 }
