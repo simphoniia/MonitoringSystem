@@ -48,7 +48,7 @@ void s21::AgentCore::ChangeTimestamp() {
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
-  file_ << "TIMASTAMP: <" << stream.str() << ">\n";
+  file_ << "TIMESTAMP: <" << stream.str() << ">\n";
 }
 
 void s21::AgentCore::WriteToLog() {
