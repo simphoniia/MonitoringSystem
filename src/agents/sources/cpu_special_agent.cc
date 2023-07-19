@@ -2,7 +2,9 @@
 
 #include "Utils/sub_functions.h"
 
-void s21::CpuSpecialAgent::RefreshData(std::ofstream &file) {
+s21::CpuSpecialAgent* s21::CreateObject() { return new s21::CpuSpecialAgent; }
+
+void s21::CpuSpecialAgent::RefreshData(std::ofstream& file) {
   if (file.is_open()) {
     const std::string get_cpu_idle_usage{
         "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $7)}'"};

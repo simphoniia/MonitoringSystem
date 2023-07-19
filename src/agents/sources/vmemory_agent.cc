@@ -2,6 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
+s21::VmemoryAgent* s21::CreateObject() { return new s21::VmemoryAgent; }
+
 double GetPage(const std::string& command);
 
 void s21::VmemoryAgent::RefreshData(std::ofstream& file) {
