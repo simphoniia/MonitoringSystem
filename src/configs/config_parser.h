@@ -52,6 +52,10 @@ class Config {
         std::string Update(std::ifstream& log_file);
 
     private:
+
+        size_t last_log_output_{};
+        size_t total_line_{};
+
         CPUAgentConfig cpu_;
         
         bool IsExistDirectory();
@@ -62,6 +66,7 @@ class Config {
 
         void ParseConfFiles();
         
+        void InitLog(std::ifstream& log_file);
         std::string ParseLog(std::ifstream& log_file);
 
         // const std::string& GetAgentsInfo();

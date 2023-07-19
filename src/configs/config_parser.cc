@@ -46,47 +46,56 @@ std::string Config::Update(std::ifstream& log_file) {
 
     ParseConfFiles();
 
+    if (!last_log_output_) InitLog(log_file);
     ParseLog(log_file);
 
     return error_message;
 }
 
+void Config::InitLog(std::ifstream& log_file) {
+    std::string line;
+    while (std::getline(log_file, line)) {
+        if (line.find("TIMESTAMP") != std::string::npos)
+            last_log_output_ = total_line_;
+        total_line_++;
+    }
+
+    log_file.clear();
+    log_file.seekg(std::ios::beg);
+}
+
 std::string Config::ParseLog(std::ifstream& log_file) {
     
-    static std::vector<std::string> data = {
+    std::cout << "ParseLog() debug info:\nTotal line: " << total_line_ << "\t Current last timestamp: " << last_log_output_ << "\n";
+
+    static std::vector<std::string> log_file_data;
+
+    static std::vector<std::string> metrics = {
         "cpu: ",
         "processes: ",
     };
     
-    size_t newest_info{};
-    size_t offset;
+    size_t local_line_counter{};
+    size_t offset{};
     std::string line;
-
-    size_t counter{};
     while (std::getline(log_file, line)) {
-        if (line.find("TIMESTAMP:") != std::string::npos) 
-            newest_info = counter;
-        counter++;
-
-        std::cout << "counter: " << counter << " newest: " << newest_info << "\n";
-    }
-
-
-
-    counter = 0;
-    while (std::getline(log_file, line)) {
-        if (newest_info >= counter) {
-            counter++;
+        if (last_log_output_ >= local_line_counter) {
+            local_line_counter++;
             continue;
         }
 
-        offset = line.find(data[0]);
-        if (offset != std::string::npos)
-            std::cout << SubFunctions::GetOnlyDigits(line.substr(offset, line.find('|'))) << "\n";
+        
 
+
+        if (line.find("TIMESTAMP") != std::string::npos)
+            last_log_output_ = local_line_counter;
+
+        local_line_counter++;
     }
-    
 
+
+    log_file.clear();
+    log_file.seekg(std::ios::beg);
 
     return line;
 }
@@ -132,7 +141,6 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
             else if (counter == 1 || counter == 2) {
                 std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
                 if (pair_of_data.second == kCompareType::kNone) error_code = 1;
-                std::cout << "Value is " << pair_of_data.first << "\n";
                 if (!error_code)
                     counter == 1 ? cpu_.SetCPULoadConfig(pair_of_data) : cpu_.SetProcNumber(pair_of_data);
             } else if (counter == 3)
