@@ -12,7 +12,7 @@
 namespace s21 {
 class MemoryAgent : public s21::BaseAgent {
  public:
-  void RefreshData(std::ofstream &file) override;
+  void RefreshData(std::ofstream& file) override;
 
  private:
   double ram_total_{};
@@ -21,6 +21,11 @@ class MemoryAgent : public s21::BaseAgent {
   size_t hard_io_persec_{};
   double hard_throughput_{};
 };
+
+extern "C" {
+s21::MemoryAgent* CreateObject();
+}
+
 };  // namespace s21
 
 #endif  //  SRC_AGENT_INCLUDES_MEMORY_AGENT_H_

@@ -11,7 +11,7 @@
 namespace s21 {
 class BaseAgent {
  public:
-  virtual void RefreshData(std::ofstream &file) = 0;
+  virtual void RefreshData(std::ofstream& file) = 0;
 };
 };  // namespace s21
 

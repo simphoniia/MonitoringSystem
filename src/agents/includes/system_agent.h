@@ -6,7 +6,7 @@
 namespace s21 {
 class SystemAgent : public s21::BaseAgent {
  public:
-  void RefreshData(std::ofstream &file) override;
+  void RefreshData(std::ofstream& file) override;
 
  private:
   long inodes_{};
@@ -15,6 +15,11 @@ class SystemAgent : public s21::BaseAgent {
   int user_auths_{};
   int number_of_disks_{};
 };
+
+extern "C" {
+s21::SystemAgent* CreateObject();
+}
+
 };  // namespace s21
 
 #endif  //  SRC_AGENT_INCLUDES_SYSTEM_AGENT_H_

@@ -2,7 +2,9 @@
 
 #include "Utils/sub_functions.h"
 
-void s21::CpuAgent::RefreshData(std::ofstream &file) {
+s21::CpuAgent* s21::CreateObject() { return new s21::CpuAgent; }
+
+void s21::CpuAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
   static std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";

@@ -6,13 +6,18 @@
 namespace s21 {
 class SwapAgent : public s21::BaseAgent {
  public:
-  void RefreshData(std::ofstream &file) override;
+  void RefreshData(std::ofstream& file) override;
 
  private:
   double total_swap_{};
   double used_swap_{};
   int proc_queue_length_{};
 };
+
+extern "C" {
+s21::SwapAgent* CreateObject();
+}
+
 };  // namespace s21
 
 #endif  //  SRC_AGENT_INCLUDES_SWAP_AGENT_H_
