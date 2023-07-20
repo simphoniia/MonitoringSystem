@@ -14,7 +14,7 @@ int main() {
   auto t1 = high_resolution_clock::now();
   s21::AgentCore agent_core;
   int i = 0;
-  while (i < 3) {
+  while (true) {
     t0 = high_resolution_clock::now();
 
     agent_core.UpdateMetrics();
