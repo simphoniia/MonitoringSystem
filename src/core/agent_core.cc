@@ -31,6 +31,10 @@ void s21::AgentCore::CheckNewAgents() {
   DylibCompile();
 }
 
+s21::AgentCore::~AgentCore() {
+  for (auto it : libs_) dlclose(it);
+}
+
 void s21::AgentCore::LogFileCreation() {
   auto now = std::chrono::system_clock::now();
   std::time_t time = std::chrono::system_clock::to_time_t(now);
@@ -48,20 +52,20 @@ void s21::AgentCore::ChangeTimestamp() {
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
-  file_ << "TIMESTAMP: <" << stream.str() << ">\n";
+  if (agents_.size() != 0) file_ << "TIMESTAMP: <" << stream.str() << ">\n";
 }
 
 void s21::AgentCore::WriteToLog() {
-  for (auto it = agents_.begin(); it != agents_.end(); ++it) {
-    if ((*it).second.first == true) {
-      (*it).second.second->RefreshData(file_);
+  for (auto it : agents_) {
+    if ((it).second.first == true) {
+      (it).second.second->RefreshData(file_);
     }
   }
 }
 
 void s21::AgentCore::DylibCompile() {
-  for (auto it = new_agents_.begin(); it != new_agents_.end(); ++it) {
-    void* libraryHandle = dlopen((*it).c_str(), RTLD_LAZY);
+  for (auto it : new_agents_) {
+    void* libraryHandle = dlopen((it).c_str(), RTLD_LAZY);
     if (!libraryHandle) {
       throw std::out_of_range("NO FILE");
     }
@@ -74,6 +78,7 @@ void s21::AgentCore::DylibCompile() {
       dlclose(libraryHandle);
     }
     std::shared_ptr<s21::BaseAgent> ptr{createFunction()};
-    agents_.insert({*it, {true, ptr}});
+    agents_.insert({it, {true, ptr}});
+    libs_.push_back(libraryHandle);
   }
 }
