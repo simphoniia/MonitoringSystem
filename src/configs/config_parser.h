@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 
+#include "../core/agent_core.h"
 #include "../agents/sources/Utils/sub_functions.h"
 
 enum kCompareType {
@@ -27,17 +28,19 @@ struct CPUAgentConfig {
 
         void SetCPULoadConfig(std::pair<double, kCompareType> cpu_load) { cpu_load_ = cpu_load; }
         void SetProcNumber(std::pair<int, kCompareType> proc_num) { process_number_ = proc_num; }
-        void SetUpdateTime(int time) { 
-            if (time > 0) update_time_ = time; 
-        }
+        void SetUpdateTime(int time) { if (time > 0) update_time_ = time; }
 
-        bool IsCorrectCPULoad(int current_load) { 
-            return Compare(current_load, cpu_load_.first, cpu_load_.second); }
+        void SetCurrentLoad(double value) { current_cpu_load_ = value; }
+        void SetCurrentProcNumber(size_t value) { current_process_count_ = value; }
 
-        bool IsCorrectProccessNumber(int proc_count) {
-            return Compare(proc_count, process_number_.first, process_number_.second); }
-    
+        bool IsCorrectCPULoad() { return Compare(current_cpu_load_, cpu_load_.first, cpu_load_.second); }
+        bool IsCorrectProcNumber() { return Compare(current_process_count_, process_number_.first, process_number_.second); }
+
     private:
+        
+        double current_cpu_load_{};
+        size_t current_process_count_{};
+        
         std::pair<double, kCompareType> cpu_load_;
         std::pair<int, kCompareType> process_number_;
         std::string agent_name_;
@@ -49,12 +52,18 @@ class Config {
     public:
         // Return message about agents. If message empty it's mean no errors.
         
-        std::string Update(std::ifstream& log_file);
+        std::string Update();
+
+        void SetCurrentCPU(double cpu_loading, size_t process_count) {
+            cpu_.SetCurrentLoad(cpu_loading);
+            cpu_.SetCurrentProcNumber(process_count);
+        }
 
     private:
 
         size_t last_log_output_{};
         size_t total_line_{};
+        std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>> agents_;
 
         CPUAgentConfig cpu_;
         
@@ -65,9 +74,8 @@ class Config {
         int CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
 
         void ParseConfFiles();
-        
-        void InitLog(std::ifstream& log_file);
-        std::string ParseLog(std::ifstream& log_file);
+
+        std::string CheckResults();
 
         // const std::string& GetAgentsInfo();
 

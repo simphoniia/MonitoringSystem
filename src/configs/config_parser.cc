@@ -1,11 +1,5 @@
 #include "config_parser.h"
 
-/*
-    TODO:
-    Need to parse log file from end to begin;
-
-*/
-
 
 bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos);
@@ -28,7 +22,7 @@ bool Compare(double val1, double val2, kCompareType& statement) {
     return result;
 }
 
-std::string Config::Update(std::ifstream& log_file) {
+std::string Config::Update() {
     int error{};
     std::string error_message;
 
@@ -46,58 +40,20 @@ std::string Config::Update(std::ifstream& log_file) {
 
     ParseConfFiles();
 
-    if (!last_log_output_) InitLog(log_file);
-    ParseLog(log_file);
+    if (error_message.empty())
+        error_message = CheckResults();
 
     return error_message;
 }
 
-void Config::InitLog(std::ifstream& log_file) {
-    std::string line;
-    while (std::getline(log_file, line)) {
-        if (line.find("TIMESTAMP") != std::string::npos)
-            last_log_output_ = total_line_;
-        total_line_++;
-    }
+std::string Config::CheckResults() {
+    // CPU -> MEMORY -> NETWORK -> ...;
+    static std::string error;
+    if (!error.empty()) error.clear();
+    if (!cpu_.IsCorrectCPULoad()) error = "CPU loading error!\n";
+    if (!cpu_.IsCorrectProcNumber()) error = "CPU Process Count error!\n";
 
-    log_file.clear();
-    log_file.seekg(std::ios::beg);
-}
-
-std::string Config::ParseLog(std::ifstream& log_file) {
-    
-    std::cout << "ParseLog() debug info:\nTotal line: " << total_line_ << "\t Current last timestamp: " << last_log_output_ << "\n";
-
-    static std::vector<std::string> log_file_data;
-
-    static std::vector<std::string> metrics = {
-        "cpu: ",
-        "processes: ",
-    };
-    
-    size_t local_line_counter{};
-    size_t offset{};
-    std::string line;
-    while (std::getline(log_file, line)) {
-        if (last_log_output_ >= local_line_counter) {
-            local_line_counter++;
-            continue;
-        }
-
-        
-
-
-        if (line.find("TIMESTAMP") != std::string::npos)
-            last_log_output_ = local_line_counter;
-
-        local_line_counter++;
-    }
-
-
-    log_file.clear();
-    log_file.seekg(std::ios::beg);
-
-    return line;
+    return error;
 }
 
 void Config::ParseConfFiles() {
