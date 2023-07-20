@@ -18,9 +18,12 @@ namespace s21 {
 class AgentCore {
  public:
   AgentCore();
+  ~AgentCore();
   void UpdateMetrics();
   void CheckNewAgents();
-  ~AgentCore();
+  int NumberOfActiveAgents();
+  void DisableAgent(const std::string &filepath);
+  void EnableAgent(const std::string &filepath);
 
  private:
   std::ofstream file_;
@@ -28,7 +31,7 @@ class AgentCore {
   std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>>
       agents_;
   std::set<std::string> new_agents_;
-  std::vector<void*> libs_;
+  std::vector<void *> libs_;
   void LogFileCreation();
   void ChangeTimestamp();
   void WriteToLog();
