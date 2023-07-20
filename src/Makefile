@@ -12,7 +12,7 @@ OBJECT 		    =   $(patsubst %*.cc, %*.dylib, $(FIND_OBJECT))
 all: clean build
 
 clean:
-	rm -rf s21_MonitoringSystem
+	rm -rf s21_MonitoringSystem objects/*.dylib
 
 build: utils.a agent_core.a
 	$(gcc) main.cc objects/agent_core.o -o $(PROJECT_NAME)
