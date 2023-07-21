@@ -24,6 +24,23 @@ bool Compare(double val1, double val2, kCompareType& statement) {
     return result;
 }
 
+bool Compare(size_t val1, size_t val2, kCompareType& statement) {
+    bool result = false;
+
+    if (statement == kCompareType::kEqual) 
+        result = (val1 == val2);
+    else if (statement == kCompareType::kEqualGreater)
+        result = (val1 >= val2);
+    else if (statement == kCompareType::kEqualLess)
+        result = (val1 <= val2);
+    else if (statement == kCompareType::kGreater)
+        result = (val1 > val2);
+    else
+        result = (val1 < val2);
+
+    return result;
+}
+
 void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
     cpu_.SetCurrentLoad(cpu_loading);
     cpu_.SetCurrentProc(process_count);
