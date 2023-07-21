@@ -3,7 +3,9 @@
 
 bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos);
+
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_);
+int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_);
 
 bool Compare(double val1, double val2, kCompareType& statement) {
     bool result = false;
@@ -21,6 +23,21 @@ bool Compare(double val1, double val2, kCompareType& statement) {
 
     return result;
 }
+
+void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
+    cpu_.SetCurrentLoad(cpu_loading);
+    cpu_.SetCurrentProc(process_count);
+}
+
+void Config::SetCurrentMemory(double total, double usage, double volume,
+            size_t hardops, double throughput) {
+                mem_.SetCurrentRam(total);
+                mem_.SetCurrentUsage(usage);
+                mem_.SetCurrentVolume(volume);
+                mem_.SetCurrentHardops(hardops);
+                mem_.SetCurrentThroughput(throughput);
+}
+
 
 std::string Config::Update() {
     int error{};
@@ -50,27 +67,29 @@ std::string Config::CheckResults() {
     // CPU -> MEMORY -> NETWORK -> ...;
     static std::string error;
     if (!error.empty()) error.clear();
-    if (!cpu_.IsCorrectCPULoad()) error = "CPU loading error!\n";
-    if (!cpu_.IsCorrectProcNumber()) error = "CPU Process Count error!\n";
+    if (!cpu_.IsCorrectLoad()) error = "CPU loading error!\n";
+    if (!cpu_.IsCorrectProc()) error = "CPU process Count error!\n";
+
+    if (!mem_.IsCorrectTotal()) error = "Memory total count error!\n";
+    if (!mem_.IsCorrectUsage()) error = "Memory usage error!\n";
+    if (!mem_.IsCorrectVolume()) error = "Memory volume error!\n";
+    if (!mem_.IsCorrectHardops()) error = "Memory hardops error!\n";
+    if (!mem_.IsCorrectThroughput()) error = "Memory throughput error!\n";
 
     return error;
 }
 
 void Config::ParseConfFiles() {
-
-    std::vector<std::pair<std::string, int(*)(std::ifstream&, CPUAgentConfig&)>> files = {
-        { "agents_config/cpu_agent.conf", ParseCPU }
-    };
-    
     std::ifstream current_file;
     
-    for (auto& current_agent : files) {
-        current_file.open(current_agent.first);
-        if (current_file.is_open()) {
-            current_agent.second(current_file, cpu_);
-            current_file.close();
-        }
-    }
+    current_file.open("agents_config/cpu_agent.conf");
+    ParseCPU(current_file, cpu_);
+    current_file.close();
+
+    current_file.open("agents_config/memory_agent.conf");
+    ParseMemory(current_file, mem_);
+    current_file.close();
+
 }
 
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
@@ -93,19 +112,76 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
         if (offset != std::string::npos) {
             offset += need_data[counter].size();
             if (counter == 0)
-                cpu_.SetName(buffer.substr(offset, buffer.size()));
+                cpu_.GetName() = (buffer.substr(offset, buffer.size()));
             else if (counter == 1 || counter == 2) {
                 std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
                 if (pair_of_data.second == kCompareType::kNone) error_code = 1;
                 if (!error_code)
-                    counter == 1 ? cpu_.SetCPULoadConfig(pair_of_data) : cpu_.SetProcNumber(pair_of_data);
+                    counter == 1 ? cpu_.SetLoad(pair_of_data) : cpu_.SetProc(pair_of_data);
             } else if (counter == 3)
-                cpu_.SetUpdateTime(std::stoi(SubFunctions::GetOnlyDigits(buffer)));
+                cpu_.GetUpdateTime() = (std::stoi(SubFunctions::GetOnlyDigits(buffer)));
             counter++;
         }
     }
     
     return error_code;
+}
+
+int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "total_metric=\"",
+        "usage_metric=\"",
+        "volume_metric=\"",
+        "hardops_metric=\"",
+        "hardthroughput_metric=\"",
+        "update_time="
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            mem_.GetName() = (buffer.substr(offset, buffer.size()));
+
+        if (counter > 0 && counter < 6) {
+            std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
+            if (pair_of_data.second == kCompareType::kNone) error_code = 1;
+
+            if (!error_code && counter == 1)
+                mem_.SetTotal(pair_of_data);
+
+            if (!error_code && counter == 2)
+                mem_.SetUsage(pair_of_data);
+
+            if (!error_code && counter == 3)
+                mem_.SetVolume(pair_of_data);
+            
+            if (!error_code && counter == 4)
+                mem_.SetHardOps(pair_of_data);
+
+            if (!error_code && counter == 5)
+                mem_.SetThroughput(pair_of_data);
+
+        }
+            
+        if (counter == 6)
+            mem_.GetUpdateTime() = (std::stoi(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
+    
+    return error_code;
+
 }
 
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos) {
