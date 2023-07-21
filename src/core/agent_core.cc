@@ -82,3 +82,14 @@ void s21::AgentCore::DylibCompile() {
     libs_.push_back(libraryHandle);
   }
 }
+
+void s21::AgentCore::SetConfigFile(Config* config) {
+  if (config_ != config)
+    config_ = config;
+  
+  for (auto& agents : agents_) {
+    if ((agents).second.first == true) {
+      (agents).second.second->SetConfigFile(config_);
+    }
+  }
+}

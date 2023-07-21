@@ -12,12 +12,13 @@
 #include <thread>
 
 #include "../agents/includes/base_agent.h"
-#include "../agents/includes/cpu_agent.h"
+#include "../configs/config_parser.h"
 
 namespace s21 {
 class AgentCore {
  public:
   AgentCore();
+  void SetConfigFile(Config* config);
   void UpdateMetrics();
   void CheckNewAgents();
   ~AgentCore();
@@ -29,6 +30,7 @@ class AgentCore {
       agents_;
   std::set<std::string> new_agents_;
   std::vector<void*> libs_;
+  Config* config_;
   void LogFileCreation();
   void ChangeTimestamp();
   void WriteToLog();
