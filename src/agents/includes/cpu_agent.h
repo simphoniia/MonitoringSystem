@@ -7,8 +7,10 @@ namespace s21 {
 class CpuAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
-
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
  private:
+  Config* config_{};
   double cpu_loading_{};
   size_t process_count_{};
 };

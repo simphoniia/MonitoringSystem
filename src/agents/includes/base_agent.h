@@ -8,10 +8,15 @@
 #include <memory>
 #include <vector>
 
+#include "../../configs/config_parser.h"
+
 namespace s21 {
 class BaseAgent {
  public:
   virtual void RefreshData(std::ofstream& file) = 0;
+  
+  virtual bool IsSetConfig() = 0;
+  virtual void SetConfigFile(Config* config) = 0;
 };
 };  // namespace s21
 

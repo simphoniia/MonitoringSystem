@@ -30,4 +30,12 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   }
   file << "cpu_agent: cpu: " << cpu_loading_
        << " | processes: " << process_count_ << '\n';
+
+  if (IsSetConfig()) {
+    config_->SetCurrentCPU(cpu_loading_, process_count_);
+  }
 }
+
+inline bool s21::CpuAgent::IsSetConfig() { return config_; }
+
+inline void s21::CpuAgent::SetConfigFile(Config* config) { config_ = config; }

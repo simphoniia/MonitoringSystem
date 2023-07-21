@@ -13,8 +13,10 @@ namespace s21 {
 class MemoryAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
-
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
  private:
+  Config* config_{};
   double ram_total_{};
   double ram_usage_{};
   double hard_usage_{};
