@@ -19,9 +19,12 @@ class AgentCore {
  public:
   AgentCore();
   void SetConfigFile(Config* config);
+  ~AgentCore();
   void UpdateMetrics();
   void CheckNewAgents();
-  ~AgentCore();
+  int NumberOfActiveAgents();
+  void DisableAgent(const std::string &filepath);
+  void EnableAgent(const std::string &filepath);
 
  private:
   std::ofstream file_;

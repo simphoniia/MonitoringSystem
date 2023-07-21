@@ -31,6 +31,23 @@ void s21::AgentCore::CheckNewAgents() {
   DylibCompile();
 }
 
+int s21::AgentCore::NumberOfActiveAgents() {
+  int result{};
+  for (auto it : agents_)
+    if (it.second.first == true) ++result;
+  return result;
+}
+
+void s21::AgentCore::DisableAgent(const std::string& filepath) {
+  if (agents_.find(filepath) == agents_.end()) return;
+  (*agents_.find(filepath)).second.first = false;
+}
+
+void s21::AgentCore::EnableAgent(const std::string& filepath) {
+  if (agents_.find(filepath) == agents_.end()) return;
+  (*agents_.find(filepath)).second.first = true;
+}
+
 s21::AgentCore::~AgentCore() {
   for (auto it : libs_) dlclose(it);
 }
@@ -52,7 +69,8 @@ void s21::AgentCore::ChangeTimestamp() {
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
-  if (agents_.size() != 0) file_ << "TIMESTAMP: <" << stream.str() << ">\n";
+  if (NumberOfActiveAgents() != 0)
+    file_ << "TIMESTAMP: <" << stream.str() << ">\n";
 }
 
 void s21::AgentCore::WriteToLog() {
