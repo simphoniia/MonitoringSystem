@@ -228,7 +228,13 @@ std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t po
         if_state = kCompareType::kNone;
 
     std::string s_value = SubFunctions::GetOnlyDigits(data);
-    double value = std::stod(s_value);
+    double value;
+    try {
+        if (!s_value.empty())
+            value = std::stod(s_value);
+    } catch (...) {
+        value = 0;
+    }
 
     return std::pair<double, kCompareType>(value, if_state);
 }
