@@ -7,20 +7,12 @@ s21::AgentCore::AgentCore() { CheckNewAgents(); }
 void s21::AgentCore::UpdateMetrics() {
   LogFileCreation();
   ChangeTimestamp();
-  if (update_time_ - execution_time_ > 0)
-    std::this_thread::sleep_for(milliseconds(update_time_ - execution_time_));
-
-  auto time_begin = high_resolution_clock::now();
 
   std::thread check_agents{&AgentCore::CheckNewAgents, this};
   std::thread write_to_log(&AgentCore::WriteToLog, this);
 
   check_agents.join();
   write_to_log.join();
-
-  auto time_end = high_resolution_clock::now();
-  execution_time_ = duration_cast<milliseconds>(time_end - time_begin).count();
-  std::cout << "ex_time = " << execution_time_ << '\n';
 
   file_.close();
 }
@@ -81,6 +73,7 @@ void s21::AgentCore::ChangeTimestamp() {
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
+
   if (NumberOfActiveAgents() != 0)
     file_ << "TIMESTAMP: <" << stream.str() << ">\n";
 }
@@ -99,14 +92,17 @@ void s21::AgentCore::DylibCompile() {
     if (!libraryHandle) {
       throw std::out_of_range("NO FILE");
     }
+
     s21::BaseAgent* (*createFunction)() =
         reinterpret_cast<s21::BaseAgent* (*)()>(
             dlsym(libraryHandle, "CreateObject"));
+
     if (!createFunction) {
       throw std::out_of_range(
           "Не удалось найти функцию создания объекта в библиотеке");
       dlclose(libraryHandle);
     }
+
     std::shared_ptr<s21::BaseAgent> ptr{createFunction()};
     agents_.insert({it, {true, ptr}});
     libs_.push_back(libraryHandle);

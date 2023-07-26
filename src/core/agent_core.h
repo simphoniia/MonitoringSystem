@@ -38,7 +38,5 @@ class AgentCore {
   void ChangeTimestamp();
   void WriteToLog();
   void DylibCompile();
-  int update_time_{3000};  // milliseconds
-  int execution_time_{};
 };
 }  // namespace s21
