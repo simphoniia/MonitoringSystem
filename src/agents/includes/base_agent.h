@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -14,7 +15,7 @@ namespace s21 {
 class BaseAgent {
  public:
   virtual void RefreshData(std::ofstream& file) = 0;
-  
+
   virtual bool IsSetConfig() = 0;
   virtual void SetConfigFile(Config* config) = 0;
 };

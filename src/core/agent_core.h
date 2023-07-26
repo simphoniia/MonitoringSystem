@@ -23,8 +23,8 @@ class AgentCore {
   void UpdateMetrics();
   void CheckNewAgents();
   int NumberOfActiveAgents();
-  void DisableAgent(const std::string &filepath);
-  void EnableAgent(const std::string &filepath);
+  void DisableAgent(const std::string& filepath);
+  void EnableAgent(const std::string& filepath);
 
  private:
   std::ofstream file_;
@@ -38,5 +38,7 @@ class AgentCore {
   void ChangeTimestamp();
   void WriteToLog();
   void DylibCompile();
+  int update_time_{3000};  // milliseconds
+  int execution_time_{};
 };
 }  // namespace s21

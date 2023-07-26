@@ -12,7 +12,7 @@ OBJECT 		    =   $(patsubst %*.cc, %*.dylib, $(FIND_OBJECT))
 all: clean build
 
 clean:
-	rm -rf s21_MonitoringSystem
+	@rm -rf s21_MonitoringSystem objects/*.o objects/*.dylib objects/*.dSYM
 
 clean_dll:
 	rm -rf objects/*.dylib
