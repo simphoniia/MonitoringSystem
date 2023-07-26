@@ -2,6 +2,8 @@
 
 #include "Utils/sub_functions.h"
 
+using namespace std::chrono;
+
 s21::CpuAgent* s21::CreateObject() { return new s21::CpuAgent; }
 
 void s21::CpuAgent::RefreshData(std::ofstream& file) {
@@ -30,7 +32,6 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   }
   file << "cpu_agent: cpu: " << cpu_loading_
        << " | processes: " << process_count_ << '\n';
-
   if (IsSetConfig()) {
     config_->SetCurrentCPU(cpu_loading_, process_count_);
   }

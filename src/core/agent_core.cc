@@ -1,15 +1,27 @@
 #include "agent_core.h"
 
+using namespace std::chrono;
+
 s21::AgentCore::AgentCore() { CheckNewAgents(); }
 
 void s21::AgentCore::UpdateMetrics() {
   LogFileCreation();
   ChangeTimestamp();
+  if (update_time_ - execution_time_ > 0)
+    std::this_thread::sleep_for(milliseconds(update_time_ - execution_time_));
+
+  auto time_begin = high_resolution_clock::now();
+
   std::thread check_agents{&AgentCore::CheckNewAgents, this};
   std::thread write_to_log(&AgentCore::WriteToLog, this);
 
   check_agents.join();
   write_to_log.join();
+
+  auto time_end = high_resolution_clock::now();
+  execution_time_ = duration_cast<milliseconds>(time_end - time_begin).count();
+  std::cout << "ex_time = " << execution_time_ << '\n';
+
   file_.close();
 }
 
@@ -102,9 +114,8 @@ void s21::AgentCore::DylibCompile() {
 }
 
 void s21::AgentCore::SetConfigFile(Config* config) {
-  if (config_ != config)
-    config_ = config;
-  
+  if (config_ != config) config_ = config;
+
   for (auto& agents : agents_) {
     if ((agents).second.first == true) {
       (agents).second.second->SetConfigFile(config_);
