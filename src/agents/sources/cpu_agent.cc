@@ -7,6 +7,8 @@ using namespace std::chrono;
 s21::CpuAgent* s21::CreateObject() { return new s21::CpuAgent; }
 
 void s21::CpuAgent::RefreshData(std::ofstream& file) {
+  // if (duration_cast<milliseconds>(high_resolution_clock::now() - time_begin_)
+  // < update_time_ * 1000) return;
   if (!file.is_open()) return;
   static std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";
@@ -35,6 +37,7 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   if (IsSetConfig()) {
     config_->SetCurrentCPU(cpu_loading_, process_count_);
   }
+  // time_begin = ...;
 }
 
 inline bool s21::CpuAgent::IsSetConfig() { return config_; }

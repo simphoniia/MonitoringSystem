@@ -6,7 +6,6 @@ s21::AgentCore::AgentCore() { CheckNewAgents(); }
 
 void s21::AgentCore::UpdateMetrics() {
   LogFileCreation();
-  ChangeTimestamp();
 
   std::thread check_agents{&AgentCore::CheckNewAgents, this};
   std::thread write_to_log(&AgentCore::WriteToLog, this);
@@ -68,19 +67,20 @@ void s21::AgentCore::LogFileCreation() {
   file_.open(fname, std::ios::app);
 }
 
-void s21::AgentCore::ChangeTimestamp() {
+std::string s21::AgentCore::ChangeTimestamp() {
   auto now = std::chrono::system_clock::now();
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
 
-  if (NumberOfActiveAgents() != 0)
-    file_ << "TIMESTAMP: <" << stream.str() << ">\n";
+  return stream.str();
 }
 
 void s21::AgentCore::WriteToLog() {
   for (auto it : agents_) {
     if ((it).second.first == true) {
+      std::string timestamp = ChangeTimestamp();
+      file_ << "[<" << timestamp << ">]   ";
       (it).second.second->RefreshData(file_);
     }
   }
