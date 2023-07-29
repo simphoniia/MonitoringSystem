@@ -42,8 +42,12 @@ bool Compare(size_t val1, size_t val2, kCompareType& statement) {
 }
 
 void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
-    cpu_.SetCurrentLoad(cpu_loading);
-    cpu_.SetCurrentProc(process_count);
+    int result = cpu_.Compare(cpu_loading, process_count);
+
+    if (result == 1)
+        error_message = ("CPU loading fail! Current " + std::to_string(cpu_loading));
+    else if (result == 2)
+        error_message = ("CPU process count fail! Current " + std::to_string(process_count));
 }
 
 void Config::SetCurrentMemory(double total, double usage, double volume,
@@ -74,26 +78,7 @@ std::string Config::Update() {
 
     ParseConfFiles();
 
-    if (error_message.empty())
-        error_message = CheckResults();
-
     return error_message;
-}
-
-std::string Config::CheckResults() {
-    // CPU -> MEMORY -> NETWORK -> ...;
-    static std::string error;
-    if (!error.empty()) error.clear();
-    if (!cpu_.IsCorrectLoad()) error = "CPU loading error!\n";
-    if (!cpu_.IsCorrectProc()) error = "CPU process Count error!\n";
-
-    if (!mem_.IsCorrectTotal()) error = "Memory total count error!\n";
-    if (!mem_.IsCorrectUsage()) error = "Memory usage error!\n";
-    if (!mem_.IsCorrectVolume()) error = "Memory volume error!\n";
-    if (!mem_.IsCorrectHardops()) error = "Memory hardops error!\n";
-    if (!mem_.IsCorrectThroughput()) error = "Memory throughput error!\n";
-
-    return error;
 }
 
 void Config::ParseConfFiles() {
@@ -103,9 +88,9 @@ void Config::ParseConfFiles() {
     ParseCPU(current_file, cpu_);
     current_file.close();
 
-    current_file.open("agents_config/memory_agent.conf");
-    ParseMemory(current_file, mem_);
-    current_file.close();
+    // current_file.open("agents_config/memory_agent.conf");
+    // ParseMemory(current_file, mem_);
+    // current_file.close();
 
 }
 
@@ -129,14 +114,18 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
         if (offset != std::string::npos) {
             offset += need_data[counter].size();
             if (counter == 0)
-                cpu_.GetName() = (buffer.substr(offset, buffer.size()));
+                cpu_.name = (buffer.substr(offset, buffer.size()));
             else if (counter == 1 || counter == 2) {
                 std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
                 if (pair_of_data.second == kCompareType::kNone) error_code = 1;
-                if (!error_code)
-                    counter == 1 ? cpu_.SetLoad(pair_of_data) : cpu_.SetProc(pair_of_data);
+                if (!error_code) {
+                    if (counter == 1)
+                        cpu_.load = pair_of_data;
+                    else
+                        cpu_.proc_num = pair_of_data;
+                }
             } else if (counter == 3)
-                cpu_.GetUpdateTime() = (std::stoi(SubFunctions::GetOnlyDigits(buffer)));
+                cpu_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
             counter++;
         }
     }

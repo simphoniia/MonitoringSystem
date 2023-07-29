@@ -23,28 +23,48 @@ enum kCompareType {
 bool Compare(double val1, double val2, kCompareType& statement);
 bool Compare(size_t val1, size_t val2, kCompareType& statement);
 
+// struct CPUAgentConfig {
+//     public:
+//         std::string& GetName() { return name_; }
+//         size_t& GetUpdateTime() { return update_time_; }
+
+
+
+//         void SetLoad(std::pair<double, kCompareType> load) { load_ = load; }
+//         void SetProc(std::pair<size_t, kCompareType> proc) { proc_num_ = proc; }
+
+//         void SetCurrentLoad(double val) { current_load_ = val; }
+//         void SetCurrentProc(size_t val) { current_proc_num_ = val; }
+
+//         bool IsCorrectLoad() { return Compare(load_.first, current_load_, load_.second); }
+//         bool IsCorrectProc() { return Compare(proc_num_.first, current_proc_num_, proc_num_.second); }
+
+//     private:
+//         std::string name_;
+//         size_t update_time_{};
+
+//         double current_load_{};
+//         size_t current_proc_num_{};
+//         std::pair<double, kCompareType> load_;
+//         std::pair<size_t, kCompareType> proc_num_;
+// };
+
 struct CPUAgentConfig {
-    public:
-        std::string& GetName() { return name_; }
-        size_t& GetUpdateTime() { return update_time_; }
+    std::string name;
+    float update_time;
+    std::pair<double, kCompareType> load;
+    std::pair<size_t, kCompareType> proc_num;
 
-        void SetLoad(std::pair<double, kCompareType> load) { load_ = load; }
-        void SetProc(std::pair<size_t, kCompareType> proc) { proc_num_ = proc; }
+    int Compare(double load, size_t procnum) {
+        int result = 0;
 
-        void SetCurrentLoad(double val) { current_load_ = val; }
-        void SetCurrentProc(size_t val) { current_proc_num_ = val; }
+        if (::Compare(this->load.first, load, this->load.second) == false)
+            result = 1;
+        else if (::Compare(proc_num.first, procnum, proc_num.second) == false)
+            result = 2;
 
-        bool IsCorrectLoad() { return Compare(load_.first, current_load_, load_.second); }
-        bool IsCorrectProc() { return Compare(proc_num_.first, current_proc_num_, proc_num_.second); }
-
-    private:
-        std::string name_;
-        size_t update_time_{};
-
-        double current_load_{};
-        size_t current_proc_num_{};
-        std::pair<double, kCompareType> load_;
-        std::pair<size_t, kCompareType> proc_num_;
+        return result;
+    }
 };
 
 struct MemoryAgentConfig {
@@ -99,6 +119,8 @@ class Config {
         void SetCurrentCPU(double cpu_loading, size_t process_count);
         void SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput);
+
+        std::string error_message;
 
     private:
 
