@@ -45,38 +45,46 @@ void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
     int result = cpu_.Compare(cpu_loading, process_count);
 
     if (result == 1)
-        error_message = ("CPU loading fail! Current " + std::to_string(cpu_loading));
+        error_msg = ("CPU loading fail! Current " + std::to_string(cpu_loading));
     else if (result == 2)
-        error_message = ("CPU process count fail! Current " + std::to_string(process_count));
+        error_msg = ("CPU process count fail! Current " + std::to_string(process_count));
 }
 
 void Config::SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput) {
-                mem_.SetCurrentRam(total);
-                mem_.SetCurrentUsage(usage);
-                mem_.SetCurrentVolume(volume);
-                mem_.SetCurrentHardops(hardops);
-                mem_.SetCurrentThroughput(throughput);
+                int result = mem_.Compare(total, usage, volume, hardops, throughput);
+
+                if (result == 1)
+                    error_msg = ("Memory total fail! Current " + std::to_string(total));
+                if (result == 2)
+                    error_msg = ("Memory usage fail! Current " + std::to_string(usage));
+                if (result == 3)
+                    error_msg = ("Memory volume fail! Current " + std::to_string(volume));
+                if (result == 4)
+                    error_msg = ("Memory hardops fail! Current " + std::to_string(hardops));
+                if (result == 5)
+                    error_msg = ("Memory throughput fail! Current " + std::to_string(throughput));
+
 }
 
 
 std::string Config::Update() {
-    int error{};
     std::string error_message;
 
+    if (!IsExistDirectory()) {
+        if (CreateDirectory())
+            error_message = "Could not to create a /agents_config/ directory";
+    }
 
-    if (!IsExistDirectory()) 
-        error = CreateDirectory();
-    
-    if (error) 
-        error_message = "Could not to create a /agents_config/ directory";
-
-    error = CheckFiles();
-
-    if (error) 
+    if (CheckFiles())
         error_message = "Could not to create a config file.";
 
     ParseConfFiles();
+
+    if (error_message.empty() && !error_msg.empty()) {
+        error_message = error_msg;
+        error_msg.clear();
+    }
 
     return error_message;
 }
@@ -88,9 +96,9 @@ void Config::ParseConfFiles() {
     ParseCPU(current_file, cpu_);
     current_file.close();
 
-    // current_file.open("agents_config/memory_agent.conf");
-    // ParseMemory(current_file, mem_);
-    // current_file.close();
+    current_file.open("agents_config/memory_agent.conf");
+    ParseMemory(current_file, mem_);
+    current_file.close();
 
 }
 
@@ -146,6 +154,7 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
         "update_time="
     };
 
+
     size_t counter{};
     size_t offset;
     std::string buffer;
@@ -157,31 +166,31 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
         offset += need_data[counter].size();
 
         if (counter == 0)
-            mem_.GetName() = (buffer.substr(offset, buffer.size()));
+            mem_.name = (buffer.substr(offset, buffer.size()));
 
         if (counter > 0 && counter < 6) {
             std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
             if (pair_of_data.second == kCompareType::kNone) error_code = 1;
 
             if (!error_code && counter == 1)
-                mem_.SetTotal(pair_of_data);
+                mem_.ram = pair_of_data;
 
             if (!error_code && counter == 2)
-                mem_.SetUsage(pair_of_data);
+                mem_.usage = pair_of_data;
 
             if (!error_code && counter == 3)
-                mem_.SetVolume(pair_of_data);
+                mem_.volume = pair_of_data;
             
             if (!error_code && counter == 4)
-                mem_.SetHardOps(pair_of_data);
+                mem_.hardops = pair_of_data;
 
             if (!error_code && counter == 5)
-                mem_.SetThroughput(pair_of_data);
+                mem_.throughput = pair_of_data;
 
         }
             
         if (counter == 6)
-            mem_.GetUpdateTime() = (std::stoi(SubFunctions::GetOnlyDigits(buffer)));
+            mem_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
 
         counter++;
     }

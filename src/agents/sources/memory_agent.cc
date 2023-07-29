@@ -32,9 +32,9 @@ void s21::MemoryAgent::RefreshData(std::ofstream& file) {
        << " | hard_ops: " << hard_io_persec_
        << " | hard_throughput: " << hard_throughput_ << '\n';
 
-  if (IsSetConfig())
+  if (IsSetConfig()) {
     config_->SetCurrentMemory(ram_total_, ram_usage_, hard_usage_, hard_io_persec_, hard_throughput_);
-
+  }
 }
 
 double GetRamTotal(const std::string& command) {
