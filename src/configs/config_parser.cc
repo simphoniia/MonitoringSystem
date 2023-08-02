@@ -1,11 +1,25 @@
 #include "config_parser.h"
 
+std::string PrintEnum(kCompareType type) {
+    if (type == kCompareType::kEqual) 
+        return "==";
+    else if (type == kCompareType::kEqualGreater)
+        return ">=";
+    else if (type == kCompareType::kEqualLess)
+        return "<=";
+    else if (type == kCompareType::kGreater)
+        return ">";
+    else
+        return "<";
+}
+
 
 bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos);
 
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_);
 int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_);
+int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_);
 
 bool Compare(double val1, double val2, kCompareType& statement) {
     bool result = false;
@@ -54,6 +68,8 @@ void Config::SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput) {
                 int result = mem_.Compare(total, usage, volume, hardops, throughput);
 
+
+                std::cout << "Compare result: " << result << "\n";
                 if (result == 1)
                     error_msg = ("Memory total fail! Current " + std::to_string(total));
                 if (result == 2)
@@ -66,6 +82,7 @@ void Config::SetCurrentMemory(double total, double usage, double volume,
                     error_msg = ("Memory throughput fail! Current " + std::to_string(throughput));
 
 }
+
 
 
 std::string Config::Update() {
@@ -170,7 +187,7 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
 
         if (counter > 0 && counter < 6) {
             std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
-            if (pair_of_data.second == kCompareType::kNone) error_code = 1;
+            if (pair_of_data.second == kCompareType::kNone && counter != 1) error_code = 1;
 
             if (!error_code && counter == 1)
                 mem_.ram = pair_of_data;
@@ -194,9 +211,48 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
 
         counter++;
     }
-    
-    return error_code;
 
+    return error_code;
+}
+
+int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "url=\"",
+        "inet_throughput_metric=\"",
+        "update_time=",
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            netw_.name = (buffer.substr(offset, buffer.size()));
+        
+        if (counter == 1)
+            netw_.network_url = (buffer.substr(offset, buffer.size() - 1));
+            
+        if (counter == 2)
+            netw_.inet_throughput = GetPairOfData(buffer, offset);
+
+        if (counter == 3)
+            netw_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
+
+
+
+    return error_code;
 }
 
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos) {
@@ -226,7 +282,7 @@ std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t po
         if_state = kCompareType::kNone;
 
     std::string s_value = SubFunctions::GetOnlyDigits(data);
-    double value;
+    double value{};
     try {
         if (!s_value.empty())
             value = std::stod(s_value);

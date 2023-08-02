@@ -41,6 +41,7 @@ struct CPUAgentConfig {
     }
 };
 
+
 struct MemoryAgentConfig {
     std::string name;
     float update_time;
@@ -66,6 +67,15 @@ struct MemoryAgentConfig {
 
         return result;
     }
+};
+
+struct NetworkAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::string network_url;
+    bool is_site_up{};
+    std::pair<size_t, kCompareType> inet_throughput;
 };
 
 class Config {
