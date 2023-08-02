@@ -41,7 +41,6 @@ struct CPUAgentConfig {
     }
 };
 
-
 struct MemoryAgentConfig {
     std::string name;
     float update_time;
@@ -74,8 +73,41 @@ struct NetworkAgentConfig {
     float update_time{};
 
     std::string network_url;
-    bool is_site_up{};
+    bool is_site_up{true};
     std::pair<size_t, kCompareType> inet_throughput;
+
+    int Compare(size_t inet_throughput) {
+        int result = 0;
+
+        if (::Compare(this->inet_throughput.first, inet_throughput, this->inet_throughput.second) == false) 
+            result = 1;
+        if (!is_site_up)
+            result = 2;
+
+        return result;
+    }
+};
+
+struct CPUSpecialAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<double, kCompareType> idle;
+    std::pair<double, kCompareType> user;
+    std::pair<double, kCompareType> priveleged;
+
+    int Compare(double idle, double user, double priveleged) {
+        int result = 0;
+
+        if (::Compare(this->idle.first, idle, this->idle.second) == false)
+            result = 1;
+        if (::Compare(this->user.first, user, this->user.second) == false)
+            result = 2;
+        if (::Compare(this->priveleged.first, priveleged, this->priveleged.second) == false)
+            result = 3;
+
+        return result;
+    }
 };
 
 class Config {
@@ -87,6 +119,11 @@ class Config {
         void SetCurrentCPU(double cpu_loading, size_t process_count);
         void SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput);
+        void SetCurrentNetwork(double inet_throughput, bool is_site_up);
+        void SetCurrentSpecialCPU(double idle, double user, double priveleged);
+
+
+        std::string GetSite() { return netw_.network_url; }
 
         std::string error_msg;
 
@@ -94,6 +131,8 @@ class Config {
 
         CPUAgentConfig cpu_{};
         MemoryAgentConfig mem_{};
+        NetworkAgentConfig netw_{};
+        CPUSpecialAgentConfig cpuspec_{};
 
         bool IsExistDirectory();
         int CreateDirectory();

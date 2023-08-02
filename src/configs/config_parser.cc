@@ -20,6 +20,7 @@ std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t po
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_);
 int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_);
 int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_);
+int ParseCpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_);
 
 bool Compare(double val1, double val2, kCompareType& statement) {
     bool result = false;
@@ -83,7 +84,25 @@ void Config::SetCurrentMemory(double total, double usage, double volume,
 
 }
 
+void Config::SetCurrentNetwork(double inet_throughput, bool is_site_up) {
+    int result = netw_.Compare(inet_throughput);
 
+    if (result == 1)
+        error_msg = ("Network fail! Current " + std::to_string(inet_throughput));
+    if (!is_site_up)
+        error_msg = ("Network fail! Site is down!");
+}
+
+void Config::SetCurrentSpecialCPU(double idle, double user, double priveleged) {
+    int result = cpuspec_.Compare(idle, user, priveleged);
+
+    if (result == 1)
+        error_msg = ("CPUSpecial idle fail! Current " + std::to_string(idle));
+    if (result == 2)
+        error_msg = ("CPUSpecial user fail! Current " + std::to_string(user));
+    if (result == 3)
+        error_msg = ("CPUSpecial priveleged fail! Current " + std::to_string(priveleged));
+}
 
 std::string Config::Update() {
     std::string error_message;
@@ -115,6 +134,14 @@ void Config::ParseConfFiles() {
 
     current_file.open("agents_config/memory_agent.conf");
     ParseMemory(current_file, mem_);
+    current_file.close();
+
+    current_file.open("agents_config/network_agent.conf");
+    ParseNetwork(current_file, netw_);
+    current_file.close();
+
+    current_file.open("agents_config/special_agent.conf");
+    ParseNetwork(current_file, netw_);
     current_file.close();
 
 }
@@ -238,8 +265,11 @@ int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
         if (counter == 0)
             netw_.name = (buffer.substr(offset, buffer.size()));
         
-        if (counter == 1)
-            netw_.network_url = (buffer.substr(offset, buffer.size() - 1));
+        if (counter == 1) {
+            netw_.network_url = (buffer.substr(offset, buffer.size()));
+            if (netw_.network_url.back() == '"')
+                netw_.network_url.pop_back();
+        }
             
         if (counter == 2)
             netw_.inet_throughput = GetPairOfData(buffer, offset);
@@ -250,7 +280,47 @@ int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
         counter++;
     }
 
+    return error_code;
+}
 
+int ParseCpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "idle=\"",
+        "user_usage=\"",
+        "priveleged=\"",
+        "update_time=",
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            cpuspec_.name = (buffer.substr(offset, buffer.size()));
+        
+        if (counter == 1)
+            cpuspec_.idle = GetPairOfData(buffer, offset);
+        
+        if (counter == 2)
+            cpuspec_.user = GetPairOfData(buffer, offset);
+
+        if (counter == 3)
+            cpuspec_.priveleged = GetPairOfData(buffer, offset);
+
+        if (counter == 4)
+            cpuspec_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
 
     return error_code;
 }
@@ -311,8 +381,8 @@ int Config::CheckFiles() {
     static std::vector<std::string> agents_config = {  
         "cpu_agent.conf",
         "memory_agent.conf",
-        "network_agent.conf"
-        //"special_agent.conf"
+        "network_agent.conf",
+        "special_agent.conf"
     };
 
     for (size_t i = 0; i < agents_config.size() && !error; i++) {
@@ -357,6 +427,13 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
             "agent_type=network_agent\n\n",
             "url=\"2ip.ru\"\n",
             "inet_throughput_metric=\"> 0\"\n",
+            "update_time=5\n"
+        },
+        {
+            "agent_name=CPU_SPECIAL_AGENT\n",
+            "idle=\">= 1000\"\n",
+            "user_usage=\">= 1000\"\n",
+            "priveleged=\">= 1000\"\n",
             "update_time=5\n"
         }
     };
