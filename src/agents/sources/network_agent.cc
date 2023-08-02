@@ -1,28 +1,28 @@
 #include "../includes/network_agent.h"
 
 double InetThroughputInfo();
-bool IsSiteConnectionUp(const char* site);
+bool IsSiteConnectionUp(const std::string& site);
 
 s21::NetworkAgent* s21::CreateObject() { return new s21::NetworkAgent; }
 
 void s21::NetworkAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
+  if (!IsSetConfig()) return;
+
+  site_ = config_->GetSite();
+  std::cout << "Site to check is " << site_ << "\n";
 
   static std::string get_access_ping = "ping -t 1 -c 1 ";
   static std::string get_info_from_ping =
       " | tail -n 2 | head -n 1 | awk '{print $7}'";
 
-  site_access_ = IsSiteConnectionUp(site);
+  site_access_ = IsSiteConnectionUp(site_);
   inet_throughput_ = InetThroughputInfo();
 
-  file << "network_agent: site_connection: ";
-
-  if (site_access_)
-    file << "1";
-  else
-    file << "0";
-
+  file << "network_agent: site_connection: " << site_access_;
   file << " | inet_throughput: " << inet_throughput_ << "\n";
+
+  config_->SetCurrentNetwork(inet_throughput_, site_access_);
 }
 
 double InetThroughputInfo() {
@@ -44,15 +44,25 @@ double InetThroughputInfo() {
   return download_speed;
 }
 
-bool IsSiteConnectionUp(const char* site) {
+bool IsSiteConnectionUp(const std::string& site) {
+  if (site.empty()) return true;
   static std::string get_access_ping = "ping -t 1 -c 1 ";
   static std::string get_info_from_ping =
       " | tail -n 2 | head -n 1 | awk '{print $7}'";
 
-  static std::string res = get_access_ping + site + get_info_from_ping;
+  std::string res = get_access_ping + site + get_info_from_ping;
+
   std::string result = SubFunctions::ExecCommand(res.c_str());
 
   bool connection = SubFunctions::GetOnlyDigits(result).empty();
 
   return !connection;
 }
+
+void s21::NetworkAgent::SetSiteToGetAccess(const std::string& site) {
+  this->site_ = site;
+}
+
+inline bool s21::NetworkAgent::IsSetConfig() { return config_; }
+
+inline void s21::NetworkAgent::SetConfigFile(Config* config) { config_ = config; }

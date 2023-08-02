@@ -13,11 +13,15 @@ class NetworkAgent : public s21::BaseAgent {
   bool GetAccessToSite() { return site_access_; }
   double GetInetThroughput() { return inet_throughput_; }
   void RefreshData(std::ofstream& file) override;
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
+  void SetSiteToGetAccess(const std::string& site);
 
  private:
+  Config* config_{};
   bool site_access_{};
   double inet_throughput_{};
-  const char* site = "2ip.ru";
+  std::string site_;
 };
 
 extern "C" {

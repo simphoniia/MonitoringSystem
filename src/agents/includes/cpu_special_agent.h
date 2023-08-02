@@ -7,13 +7,13 @@ namespace s21 {
 class CpuSpecialAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
-
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
  private:
+  Config* config_{};
   double cpu_idle_usage_{};
   double cpu_user_usage_{};
   double cpu_priveleged_usage_{};
-  double cpu_dpc_usage_{};
-  double cpu_interrapt_usage_{};
 };
 
 extern "C" {

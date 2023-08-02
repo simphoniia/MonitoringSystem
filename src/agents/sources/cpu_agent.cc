@@ -10,6 +10,7 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   // if (duration_cast<milliseconds>(high_resolution_clock::now() - time_begin_)
   // < update_time_ * 1000) return;
   if (!file.is_open()) return;
+  if (!IsSetConfig()) return;
   static std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";
   static std::string get_process_count =
@@ -34,9 +35,7 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   }
   file << "cpu_agent: cpu: " << cpu_loading_
        << " | processes: " << process_count_ << '\n';
-  if (IsSetConfig()) {
-    config_->SetCurrentCPU(cpu_loading_, process_count_);
-  }
+  config_->SetCurrentCPU(cpu_loading_, process_count_);
   // time_begin = ...;
 }
 
