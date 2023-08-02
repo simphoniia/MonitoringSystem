@@ -20,8 +20,8 @@ enum kCompareType {
     kNone
 };
 
-bool Compare(double val1, double val2, kCompareType& statement);
-bool Compare(size_t val1, size_t val2, kCompareType& statement);
+template <typename T>
+bool Compare(T val1, T val2, kCompareType& statement);
 
 struct CPUAgentConfig {
     std::string name;
@@ -110,6 +110,77 @@ struct CPUSpecialAgentConfig {
     }
 };
 
+struct SwapAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<double, kCompareType> total_swap;
+    std::pair<double, kCompareType> used_swap;
+    std::pair<size_t, kCompareType> proc_queue;
+
+    int Compare(double total, double used, size_t proc_queue) {
+        int result = 0;
+
+        if (::Compare(this->total_swap.first, total, this->total_swap.second) == false)
+            result = 1;
+        if (::Compare(this->used_swap.first, used, this->used_swap.second) == false)
+            result = 2;
+        if (::Compare(this->proc_queue.first, proc_queue, this->proc_queue.second) == false)
+            result = 3;
+
+        return result;
+    }
+};
+
+struct SystemAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<long, kCompareType> inodes;
+    std::pair<double, kCompareType> hard_read_time;
+    std::pair<size_t, kCompareType> system_errors;
+    std::pair<size_t, kCompareType> user_auths;
+    std::pair<size_t, kCompareType> disknum;
+
+
+    int Compare(long inodes, double hardread, size_t errors, size_t auths, size_t disknum) {
+        int result = 0;
+
+        if (::Compare(this->inodes.first, inodes, this->inodes.second) == false)
+            result = 1;
+        if (::Compare(hard_read_time.first, hardread, hard_read_time.second) == false)
+            result = 2;
+        if (::Compare(system_errors.first, errors, system_errors.second) == false)
+            result = 3;
+        if (::Compare(user_auths.first, auths, user_auths.second) == false)
+            result = 4;
+        if (::Compare(this->disknum.first, disknum, this->disknum.second) == false)
+            result = 5;
+
+
+        return result;
+    }
+};
+
+struct VMemoryAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<double, kCompareType> vmem_volume;
+    std::pair<double, kCompareType> vmem_free;
+
+    int Compare(double vmem_volume, double vmem_free) {
+        int result = 0;
+
+        if (::Compare(this->vmem_volume.first, vmem_volume, this->vmem_volume.second) == false)
+            result = 1;
+        if (::Compare(this->vmem_free.first, vmem_free, this->vmem_free.second) == false)
+            result = 2;
+
+        return result;
+    }
+};
+
 class Config {
     public:
         // Return message about agents. If message empty it's mean no errors.
@@ -121,7 +192,9 @@ class Config {
             size_t hardops, double throughput);
         void SetCurrentNetwork(double inet_throughput, bool is_site_up);
         void SetCurrentSpecialCPU(double idle, double user, double priveleged);
-
+        void SetCurrentSwap(double swap, double usedswap, size_t proc_queue);
+        void SetCurrentSystem(long inodes, double hardreadtime, int errors, int auths, int disknum);
+        void SetCurrentVMemory(double volume, double free);
 
         std::string GetSite() { return netw_.network_url; }
 
@@ -133,6 +206,9 @@ class Config {
         MemoryAgentConfig mem_{};
         NetworkAgentConfig netw_{};
         CPUSpecialAgentConfig cpuspec_{};
+        SwapAgentConfig swap_{};
+        SystemAgentConfig system_{};
+        VMemoryAgentConfig vmem_{};
 
         bool IsExistDirectory();
         int CreateDirectory();
@@ -141,8 +217,6 @@ class Config {
         int CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
 
         void ParseConfFiles();
-
-        std::string CheckResults();
 
         // const std::string& GetAgentsInfo();
 

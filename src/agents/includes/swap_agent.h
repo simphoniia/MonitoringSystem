@@ -7,8 +7,11 @@ namespace s21 {
 class SwapAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
 
  private:
+  Config* config_{};
   double total_swap_{};
   double used_swap_{};
   int proc_queue_length_{};

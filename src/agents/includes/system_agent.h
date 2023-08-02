@@ -7,8 +7,11 @@ namespace s21 {
 class SystemAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
 
  private:
+  Config* config_{};
   long inodes_{};
   double hard_read_time_{};
   int system_errors_{};

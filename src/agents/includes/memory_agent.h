@@ -1,12 +1,6 @@
 #ifndef SRC_AGENT_INCLUDES_MEMORY_AGENT_H_
 #define SRC_AGENT_INCLUDES_MEMORY_AGENT_H_
 
-// [double] общий объем оперативной памяти (ram_total)
-// [double] загрузка оперативной памяти в процентах (ram),
-// [double] использование объема жесткого диска (hard_volume),
-// [int] количество операций ввода-вывода для жесткого диска в секунду
-// (hard_ops) [double] пропускная способность жесткого диска (hard_throughput)
-
 #include "base_agent.h"
 
 namespace s21 {

@@ -9,6 +9,8 @@ double ReadTimeCalculation(const std::string &command);
 
 void s21::SystemAgent::RefreshData(std::ofstream &file) {
   if (!file.is_open()) return;
+  if (!IsSetConfig()) return;
+
   static const std::string get_inodes{
       "df -i | sed -n '2p' | awk '{print $7}'"};  // ???
   static const std::string get_number_of_disks{
@@ -34,13 +36,16 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
     system_errors_ = std::stoi(system_errors);
     user_auths_ = std::stoi(user_auths);
     hard_read_time_ = ReadTimeCalculation(get_disk_read_time);
+    number_of_disks_ = std::stoi(number_of_disks);
   } catch (...) {
     std::cerr << "convertaion error!";
   }
   file << "system_agene: inodes: " << inodes_
        << " | system_errors: " << system_errors_
        << " | user_auths: " << user_auths_
-       << " | hard_read_time: " << hard_read_time_ << " MB/s\n";
+       << " | hard_read_time: " << hard_read_time_ << " MB/s\n"
+       << " | disk_num: " << number_of_disks_ << "\n";
+  config_->SetCurrentSystem(inodes_, hard_read_time_, system_errors_, user_auths_, number_of_disks_);
 }
 
 double GetDiskReadTime(std::string command, int position) {
@@ -65,3 +70,7 @@ double ReadTimeCalculation(const std::string &command) {
   }
   return result / (number_of_disks);
 }
+
+inline bool s21::SystemAgent::IsSetConfig() { return config_; }
+
+inline void s21::SystemAgent::SetConfigFile(Config* config) { config_ = config; }

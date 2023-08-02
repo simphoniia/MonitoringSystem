@@ -20,26 +20,13 @@ std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t po
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_);
 int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_);
 int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_);
-int ParseCpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_);
+int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_);
+int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_);
+int ParseSystem(std::ifstream& file, SystemAgentConfig& system_);
+int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_);
 
-bool Compare(double val1, double val2, kCompareType& statement) {
-    bool result = false;
-
-    if (statement == kCompareType::kEqual) 
-        result = (val1 == val2);
-    else if (statement == kCompareType::kEqualGreater)
-        result = (val1 >= val2);
-    else if (statement == kCompareType::kEqualLess)
-        result = (val1 <= val2);
-    else if (statement == kCompareType::kGreater)
-        result = (val1 > val2);
-    else
-        result = (val1 < val2);
-
-    return result;
-}
-
-bool Compare(size_t val1, size_t val2, kCompareType& statement) {
+template <typename T>
+bool Compare(T val1, T val2, kCompareType& statement) {
     bool result = false;
 
     if (statement == kCompareType::kEqual) 
@@ -104,6 +91,41 @@ void Config::SetCurrentSpecialCPU(double idle, double user, double priveleged) {
         error_msg = ("CPUSpecial priveleged fail! Current " + std::to_string(priveleged));
 }
 
+void Config::SetCurrentSwap(double swap, double usedswap, size_t proc_queue) {
+    int result = swap_.Compare(swap, usedswap, proc_queue);
+
+    if (result == 1)
+        error_msg = ("Swap total fail! Current " + std::to_string(swap));
+    if (result == 2)
+        error_msg = ("Swap usedswap fail! Current " + std::to_string(usedswap));
+    if (result == 3)
+        error_msg = ("Swap proc_queue fail! Current " + std::to_string(proc_queue));
+}
+
+void Config::SetCurrentSystem(long inodes, double hardreadtime, int errors, int auths, int disknum) {
+    int result = system_.Compare(inodes, hardreadtime, errors, auths, disknum);
+
+    if (result == 1)
+        error_msg = ("System inodes fail! Current " + std::to_string(inodes));
+    if (result == 2)
+        error_msg = ("System HardRead time fail! Current " + std::to_string(hardreadtime));
+    if (result == 3)
+        error_msg = ("System errors fail! Current " + std::to_string(errors));
+    if (result == 4)
+        error_msg = ("System user auths fail! Current " + std::to_string(auths));
+    if (result == 5)
+        error_msg = ("System number of disk fail! Current " + std::to_string(disknum));
+}
+
+void Config::SetCurrentVMemory(double volume, double free) {
+    int result = vmem_.Compare(volume, free);
+
+    if (result == 1)
+        error_msg = ("VMemory volume fail! Current " + std::to_string(volume));
+    if (result == 2)
+        error_msg = ("VMemory free time fail! Current " + std::to_string(free));
+}
+
 std::string Config::Update() {
     std::string error_message;
 
@@ -141,7 +163,19 @@ void Config::ParseConfFiles() {
     current_file.close();
 
     current_file.open("agents_config/special_agent.conf");
-    ParseNetwork(current_file, netw_);
+    ParseSpecial(current_file, cpuspec_);
+    current_file.close();
+
+    current_file.open("agents_config/swap_agent.conf");
+    ParseSwap(current_file, swap_);
+    current_file.close();
+
+    current_file.open("agents_config/system_agent.conf");
+    ParseSystem(current_file, system_);
+    current_file.close();
+
+    current_file.open("agents_config/vmemory_agent.conf");
+    ParseVMemory(current_file, vmem_);
     current_file.close();
 
 }
@@ -283,7 +317,7 @@ int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
     return error_code;
 }
 
-int ParseCpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
+int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
     int error_code = 0;
 
     static std::vector<std::string> need_data = {
@@ -325,6 +359,136 @@ int ParseCpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
     return error_code;
 }
 
+int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "total_swap=\"",
+        "used_swap=\"",
+        "proc_queue=\"",
+        "update_time=",
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            swap_.name = (buffer.substr(offset, buffer.size()));
+        
+        if (counter == 1)
+            swap_.total_swap = GetPairOfData(buffer, offset);
+        
+        if (counter == 2)
+            swap_.used_swap = GetPairOfData(buffer, offset);
+
+        if (counter == 3)
+            swap_.proc_queue = GetPairOfData(buffer, offset);
+
+        if (counter == 4)
+            swap_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
+
+    return error_code;
+}
+
+int ParseSystem(std::ifstream& file, SystemAgentConfig& system_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "inodes=\"",
+        "hard_read_time=\"",
+        "system_errors=\"",
+        "user_auths=\"",
+        "number_of_disks=\"",
+        "update_time=",
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            system_.name = (buffer.substr(offset, buffer.size()));
+        
+        if (counter == 1)
+            system_.inodes = GetPairOfData(buffer, offset);
+
+        if (counter == 2)
+            system_.hard_read_time = GetPairOfData(buffer, offset);
+
+        if (counter == 3)
+            system_.system_errors = GetPairOfData(buffer, offset);
+
+        if (counter == 4)
+            system_.user_auths = GetPairOfData(buffer, offset);
+
+        if (counter == 5)
+            system_.disknum = GetPairOfData(buffer, offset);
+
+        if (counter == 6)
+            system_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
+
+    return error_code;
+}
+
+int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_) {
+    int error_code = 0;
+
+    static std::vector<std::string> need_data = {
+        "agent_name=",
+        "volume=\"",
+        "free=\"",
+        "update_time=",
+    };
+
+    size_t counter{};
+    size_t offset;
+    std::string buffer;
+    buffer.reserve(50);
+
+    while (std::getline(file, buffer)) {
+        offset = buffer.find(need_data[counter]);
+        if (offset == std::string::npos) continue;
+        offset += need_data[counter].size();
+
+        if (counter == 0)
+            vmem_.name = (buffer.substr(offset, buffer.size()));
+        
+        if (counter == 1)
+            vmem_.vmem_volume = GetPairOfData(buffer, offset);
+
+        if (counter == 2)
+            vmem_.vmem_free = GetPairOfData(buffer, offset);
+
+        if (counter == 3)
+            vmem_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
+        counter++;
+    }
+
+    return error_code;
+}
+
 std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t pos) {
     static std::string probably_condition = "=><";
     std::string condition;
@@ -343,7 +507,7 @@ std::pair<double, kCompareType> GetPairOfData(const std::string& data, size_t po
         { ">", kGreater },
         { "==", kEqual },
         { "<", kLess },
-        {"<=", kEqualLess }
+        { "<=", kEqualLess }
     };
 
     kCompareType if_state = state_key.find(condition)->second;
@@ -382,7 +546,10 @@ int Config::CheckFiles() {
         "cpu_agent.conf",
         "memory_agent.conf",
         "network_agent.conf",
-        "special_agent.conf"
+        "special_agent.conf",
+        "swap_agent.conf",
+        "system_agent.conf",
+        "vmemory_agent.conf"
     };
 
     for (size_t i = 0; i < agents_config.size() && !error; i++) {
@@ -407,14 +574,12 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
     static std::vector<std::vector<std::string>> default_file_data = {
         {
             "agent_name=CPU_AGENT\n",
-            "agent_type=cpu_agent\n\n",
             "load_metric=\">= 50\"\n",
             "processes_metric=\">= 1000\"\n",
             "\nupdate_time=4"
         }, 
         {
             "agent_name=MEMORY_AGENT\n",
-            "agent_type=memory_agent\n\n",
             "total_metric=\"\"\n",
             "usage_metric=\">= 80\"\n",
             "volume_metric=\"<= 1.0\"\n",
@@ -424,7 +589,6 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
         },
         {
             "agent_name=NETWORK_AGENT\n",
-            "agent_type=network_agent\n\n",
             "url=\"2ip.ru\"\n",
             "inet_throughput_metric=\"> 0\"\n",
             "update_time=5\n"
@@ -434,6 +598,28 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
             "idle=\">= 1000\"\n",
             "user_usage=\">= 1000\"\n",
             "priveleged=\">= 1000\"\n",
+            "update_time=5\n"
+        },
+        {
+            "agent_name=SWAP_AGENT\n",
+            "total_swap=\">= 1000\"\n",
+            "used_swap=\">= 1000\"\n",
+            "proc_queue=\">= 1000\"\n",
+            "update_time=5\n"
+        },
+        {
+            "agent_name=SYSTEM_AGENT\n",
+            "inodes=\">= 1000\"\n",
+            "hard_read_time=\">= 1000\"\n",
+            "system_errors=\">= 1000\"\n",
+            "user_auths=\">= 1000\"\n",
+            "number_of_disks=\">= 1000\"\n",
+            "update_time=5\n"
+        },
+        {
+            "agent_name=VMEMORY_AGENT\n",
+            "volume=\">= 1000\"\n",
+            "free=\">= 1000\"\n",
             "update_time=5\n"
         }
     };
