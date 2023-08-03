@@ -25,8 +25,8 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_);
 int ParseSystem(std::ifstream& file, SystemAgentConfig& system_);
 int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_);
 
-template <typename T>
-bool Compare(T val1, T val2, kCompareType& statement) {
+template <typename Type>
+bool Compare(Type val1, Type val2, kCompareType& statement) {
     bool result = false;
 
     if (statement == kCompareType::kEqual) 
@@ -44,86 +44,53 @@ bool Compare(T val1, T val2, kCompareType& statement) {
 }
 
 void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
-    int result = cpu_.Compare(cpu_loading, process_count);
-
-    if (result == 1)
-        error_msg = ("CPU loading fail! Current " + std::to_string(cpu_loading));
-    else if (result == 2)
-        error_msg = ("CPU process count fail! Current " + std::to_string(process_count));
+    std::pair<kAgentError, std::string> result = cpu_.Compare(cpu_loading, process_count);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 void Config::SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput) {
-                int result = mem_.Compare(total, usage, volume, hardops, throughput);
-
-
-                std::cout << "Compare result: " << result << "\n";
-                if (result == 1)
-                    error_msg = ("Memory total fail! Current " + std::to_string(total));
-                if (result == 2)
-                    error_msg = ("Memory usage fail! Current " + std::to_string(usage));
-                if (result == 3)
-                    error_msg = ("Memory volume fail! Current " + std::to_string(volume));
-                if (result == 4)
-                    error_msg = ("Memory hardops fail! Current " + std::to_string(hardops));
-                if (result == 5)
-                    error_msg = ("Memory throughput fail! Current " + std::to_string(throughput));
+    std::pair<kAgentError, std::string> result = 
+        mem_.Compare(total, usage, volume, hardops, throughput);
+    if (result.first != kOk)
+        error_msg = result.second;
 
 }
 
 void Config::SetCurrentNetwork(double inet_throughput, bool is_site_up) {
-    int result = netw_.Compare(inet_throughput);
-
-    if (result == 1)
-        error_msg = ("Network fail! Current " + std::to_string(inet_throughput));
-    if (!is_site_up)
-        error_msg = ("Network fail! Site is down!");
+    std::pair<kAgentError, std::string> result = 
+        netw_.Compare(inet_throughput, is_site_up);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 void Config::SetCurrentSpecialCPU(double idle, double user, double priveleged) {
-    int result = cpuspec_.Compare(idle, user, priveleged);
-
-    if (result == 1)
-        error_msg = ("CPUSpecial idle fail! Current " + std::to_string(idle));
-    if (result == 2)
-        error_msg = ("CPUSpecial user fail! Current " + std::to_string(user));
-    if (result == 3)
-        error_msg = ("CPUSpecial priveleged fail! Current " + std::to_string(priveleged));
+    std::pair<kAgentError, std::string> result = 
+        cpuspec_.Compare(idle, user, priveleged);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 void Config::SetCurrentSwap(double swap, double usedswap, size_t proc_queue) {
-    int result = swap_.Compare(swap, usedswap, proc_queue);
-
-    if (result == 1)
-        error_msg = ("Swap total fail! Current " + std::to_string(swap));
-    if (result == 2)
-        error_msg = ("Swap usedswap fail! Current " + std::to_string(usedswap));
-    if (result == 3)
-        error_msg = ("Swap proc_queue fail! Current " + std::to_string(proc_queue));
+    std::pair<kAgentError, std::string> result = 
+        swap_.Compare(swap, usedswap, proc_queue);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 void Config::SetCurrentSystem(long inodes, double hardreadtime, int errors, int auths, int disknum) {
-    int result = system_.Compare(inodes, hardreadtime, errors, auths, disknum);
-
-    if (result == 1)
-        error_msg = ("System inodes fail! Current " + std::to_string(inodes));
-    if (result == 2)
-        error_msg = ("System HardRead time fail! Current " + std::to_string(hardreadtime));
-    if (result == 3)
-        error_msg = ("System errors fail! Current " + std::to_string(errors));
-    if (result == 4)
-        error_msg = ("System user auths fail! Current " + std::to_string(auths));
-    if (result == 5)
-        error_msg = ("System number of disk fail! Current " + std::to_string(disknum));
+    std::pair<kAgentError, std::string> result = 
+        system_.Compare(inodes, hardreadtime, errors, auths, disknum);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 void Config::SetCurrentVMemory(double volume, double free) {
-    int result = vmem_.Compare(volume, free);
-
-    if (result == 1)
-        error_msg = ("VMemory volume fail! Current " + std::to_string(volume));
-    if (result == 2)
-        error_msg = ("VMemory free time fail! Current " + std::to_string(free));
+    std::pair<kAgentError, std::string> result = 
+        vmem_.Compare(volume, free);
+    if (result.first != kOk)
+        error_msg = result.second;
 }
 
 std::string Config::Update() {
