@@ -21,6 +21,11 @@ enum kCompareType {
     kNone
 };
 
+enum kAgentError {
+    kOk,
+    kFail
+};
+
 bool Compare(size_t val1, size_t val2, kCompareType& statement);
 bool Compare(int val1, int val2, kCompareType& statement);
 bool Compare(double val1, double val2, kCompareType& statement);
@@ -32,15 +37,16 @@ struct CPUAgentConfig {
     std::pair<double, kCompareType> load;
     std::pair<size_t, kCompareType> proc_num;
 
-    int Compare(double load, size_t procnum) {
-        int result = 0;
+    std::pair<kAgentError, std::string> Compare(double load, size_t procnum) {
+        std::pair<kAgentError, std::string> error{};
 
-        if (::Compare(this->load.first, load, this->load.second) == false)
-            result = 1;
-        else if (::Compare(proc_num.first, procnum, proc_num.second) == false)
-            result = 2;
+        if (!::Compare(this->load.first, load, this->load.second))
+            error = {kFail, std::string("CPU Load fail! " + std::to_string(load))};
 
-        return result;
+        else if (!::Compare(proc_num.first, procnum, proc_num.second))
+            error = {kFail, std::string("CPU process fail! " + std::to_string(procnum))};
+
+        return error;
     }
 };
 
@@ -53,21 +59,22 @@ struct MemoryAgentConfig {
     std::pair<size_t, kCompareType> hardops;
     std::pair<double, kCompareType> throughput;
 
-    int Compare(double ram, double usage, double volume, size_t ops, double throughput) {
-        int result = 0;
+    std::pair<kAgentError, std::string> Compare(double ram, double usage, double volume, size_t ops, double throughput) {
+        std::pair<kAgentError, std::string> error{};
 
-        if (::Compare(this->ram.first, ram, this->ram.second) == false) 
-            result = 1;
-        if (::Compare(this->usage.first, usage, this->usage.second) == false) 
-            result = 2;
-        if (::Compare(this->volume.first, volume, this->volume.second) == false) 
-            result = 3;
-        if (::Compare(this->hardops.first, ops, this->hardops.second) == false) 
-            result = 4;
-        if (::Compare(this->throughput.first, throughput, this->throughput.second) == true) 
-            result = 5;
+        if (!::Compare(this->ram.first, ram, this->ram.second)) 
+            error = {kFail, std::string("Memory ram total fail! " + std::to_string(ram))};
+        if (!::Compare(this->usage.first, usage, this->usage.second)) 
+            error = {kFail, std::string("Memory usage fail! " + std::to_string(usage))};
+        if (!::Compare(this->volume.first, volume, this->volume.second)) 
+            error = {kFail, std::string("Memory volume fail! " + std::to_string(volume))};
+        if (!::Compare(this->hardops.first, ops, this->hardops.second)) 
+            error = {kFail, std::string("Memory hardops fail! " + std::to_string(ops))};
+        if (::Compare(this->throughput.first, throughput, this->throughput.second)) 
+            error = {kFail, std::string("Memory ram fail! " + std::to_string(throughput))};
 
-        return result;
+
+        return error;
     }
 };
 
@@ -79,15 +86,15 @@ struct NetworkAgentConfig {
     bool is_site_up{true};
     std::pair<size_t, kCompareType> inet_throughput;
 
-    int Compare(size_t inet_throughput) {
-        int result = 0;
+    std::pair<kAgentError, std::string> Compare(size_t inet_throughput, bool site_access) {
+        std::pair<kAgentError, std::string> error{};
 
-        if (::Compare(this->inet_throughput.first, inet_throughput, this->inet_throughput.second) == false) 
-            result = 1;
+        if (!::Compare(this->inet_throughput.first, inet_throughput, this->inet_throughput.second)) 
+            error = {kFail, std::string("Network throughput fail! " + std::to_string(inet_throughput))};
         if (!is_site_up)
-            result = 2;
+            error = {kFail, std::string("Network fail! Site is down!")};
 
-        return result;
+        return error;
     }
 };
 
@@ -99,17 +106,87 @@ struct CPUSpecialAgentConfig {
     std::pair<double, kCompareType> user;
     std::pair<double, kCompareType> priveleged;
 
-    int Compare(double idle, double user, double priveleged) {
-        int result = 0;
+    std::pair<kAgentError, std::string> Compare(double idle, double user, double priveleged) {
+        std::pair<kAgentError, std::string> error{};
 
-        if (::Compare(this->idle.first, idle, this->idle.second) == false)
-            result = 1;
-        if (::Compare(this->user.first, user, this->user.second) == false)
-            result = 2;
-        if (::Compare(this->priveleged.first, priveleged, this->priveleged.second) == false)
-            result = 3;
+        if (!::Compare(this->idle.first, idle, this->idle.second))
+            error = {kFail, std::string("Special idle fail!! " + std::to_string(idle))};
+        if (!::Compare(this->user.first, user, this->user.second))
+            error = {kFail, std::string("Special user fail!" + std::to_string(user))};
+        if (!::Compare(this->priveleged.first, priveleged, this->priveleged.second))
+            error = {kFail, std::string("Special priveleged fail!" + std::to_string(priveleged))};
 
-        return result;
+        return error;
+    }
+};
+
+struct SwapAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<double, kCompareType> total_swap;
+    std::pair<double, kCompareType> used_swap;
+    std::pair<size_t, kCompareType> proc_queue;
+
+    std::pair<kAgentError, std::string> Compare(double total, double used, size_t proc_queue) {
+        std::pair<kAgentError, std::string> error{};
+
+        if (!::Compare(this->total_swap.first, total, this->total_swap.second))
+            error = {kFail, std::string("Special idle fail!! " + std::to_string(total))};
+        if (!::Compare(this->used_swap.first, used, this->used_swap.second))
+            error = {kFail, std::string("Special user fail!" + std::to_string(used))};
+        if (!::Compare(this->proc_queue.first, proc_queue, this->proc_queue.second))
+            error = {kFail, std::string("Special priveleged fail!" + std::to_string(proc_queue))};
+
+        return error;
+    }
+};
+
+struct SystemAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<long, kCompareType> inodes;
+    std::pair<double, kCompareType> hard_read_time;
+    std::pair<size_t, kCompareType> system_errors;
+    std::pair<size_t, kCompareType> user_auths;
+    std::pair<size_t, kCompareType> disknum;
+
+    std::pair<kAgentError, std::string> Compare(long inodes, double hardread, 
+        size_t errors, size_t auths, size_t disknum) {
+        std::pair<kAgentError, std::string> error{};
+
+        if (!::Compare(this->inodes.first, inodes, this->inodes.second))
+            error = {kFail, std::string("System inodes fail! " + std::to_string(inodes))};
+        if (!::Compare(hard_read_time.first, hardread, hard_read_time.second))
+            error = {kFail, std::string("System hardread fail! " + std::to_string(hardread))};
+        if (!::Compare(system_errors.first, errors, system_errors.second))
+            error = {kFail, std::string("System syserrors fail! " + std::to_string(errors))};
+        if (!::Compare(user_auths.first, auths, user_auths.second))
+            error = {kFail, std::string("System auths fail! " + std::to_string(auths))};
+        if (!::Compare(this->disknum.first, disknum, this->disknum.second))
+            error = {kFail, std::string("System disknum fail! " + std::to_string(disknum))};
+
+        return error;
+    }
+};
+
+struct VMemoryAgentConfig {
+    std::string name;
+    float update_time{};
+
+    std::pair<double, kCompareType> vmem_volume;
+    std::pair<double, kCompareType> vmem_free;
+
+    std::pair<kAgentError, std::string> Compare(double vmem_volume, double vmem_free) {
+        std::pair<kAgentError, std::string> error{};
+
+        if (!::Compare(this->vmem_volume.first, vmem_volume, this->vmem_volume.second))
+            error = {kFail, std::string("VMemory volume fail! " + std::to_string(vmem_volume))};
+        if (!::Compare(this->vmem_free.first, vmem_free, this->vmem_free.second))
+            error = {kFail, std::string("VMemory free fail! " + std::to_string(vmem_free))};
+
+        return error;
     }
 };
 

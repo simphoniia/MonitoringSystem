@@ -9,6 +9,8 @@ double ReadTimeCalculation(const std::string &command);
 
 void s21::SystemAgent::RefreshData(std::ofstream &file) {
   if (!file.is_open()) return;
+  if (!IsSetConfig()) return;
+
   static const std::string get_inodes{
       "df -i | sed -n '2p' | awk '{print $7}'"};  // ???
   static const std::string get_number_of_disks{
