@@ -9,7 +9,6 @@ class CpuAgent : public s21::BaseAgent {
   void RefreshData(std::ofstream& file) override;
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
-
  private:
   Config* config_{};
   double cpu_loading_{};

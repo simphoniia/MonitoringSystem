@@ -7,8 +7,10 @@ namespace s21 {
 class VmemoryAgent : public s21::BaseAgent {
  public:
   void RefreshData(std::ofstream& file) override;
-
+  bool IsSetConfig() override;
+  void SetConfigFile(Config* config) override;
  private:
+  Config* config_{};
   double virtual_mem_volume_{};
   double virtual_mem_free_{};
 };

@@ -34,6 +34,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
     system_errors_ = std::stoi(system_errors);
     user_auths_ = std::stoi(user_auths);
     hard_read_time_ = ReadTimeCalculation(get_disk_read_time);
+    number_of_disks_ = std::stoi(number_of_disks);
   } catch (...) {
     std::cerr << "convertaion error!";
   }
@@ -41,6 +42,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
        << " | system_errors: " << system_errors_
        << " | user_auths: " << user_auths_
        << " | hard_read_time: " << hard_read_time_ << " MB/s\n";
+  config_->SetCurrentSystem(inodes_, hard_read_time_, system_errors_, user_auths_, number_of_disks_);
 }
 
 double GetDiskReadTime(std::string command, int position) {
@@ -65,3 +67,7 @@ double ReadTimeCalculation(const std::string &command) {
   }
   return result / (number_of_disks);
 }
+
+inline bool s21::SystemAgent::IsSetConfig() { return config_; }
+
+inline void s21::SystemAgent::SetConfigFile(Config* config) { config_ = config; }

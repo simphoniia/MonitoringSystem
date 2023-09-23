@@ -8,7 +8,6 @@ double GetPage(const std::string& command);
 
 void s21::VmemoryAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
-  // размер листа в байтах
   const std::string get_virtual_page_size{
       "vm_stat | grep 'page size' | awk '{print $8}'"};
   const std::string get_pages_free{
@@ -29,18 +28,20 @@ void s21::VmemoryAgent::RefreshData(std::ofstream& file) {
   double pages_speculative = GetPage(get_pages_speculative);
   double pages_wired_down = GetPage(get_pages_wired_down);
 
-  // свободная виртуальная память в мегабайтах
   virtual_mem_free_ = (page_size * pages_free) / 1024 / 1024;
-  //полная виртуальная память в мегабайтах
   virtual_mem_volume_ = (pages_free + pages_active + pages_inactive +
                          pages_speculative + pages_wired_down) *
                         page_size / 1024 / 1024;
   file << "v_memory_agent: virtual_mem_volume: " << virtual_mem_volume_ << " MB"
        << " | virtual_mem_free: " << virtual_mem_free_ << " MB\n";
+  config_->SetCurrentVMemory(virtual_mem_volume_, virtual_mem_free_);
 }
 
 double GetPage(const std::string& command) {
   std::string result = SubFunctions::ExecCommand(command.c_str());
-
   return stod(result);
 }
+
+inline bool s21::VmemoryAgent::IsSetConfig() { return config_; }
+
+inline void s21::VmemoryAgent::SetConfigFile(Config* config) { config_ = config; }

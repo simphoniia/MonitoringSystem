@@ -29,7 +29,7 @@ void s21::AgentCore::CheckNewAgents() {
       }
     }
   } catch (const std::exception& e) {
-    std::cerr << "Ошибка: " << e.what() << std::endl;
+    std::cerr << "Error: " << e.what() << std::endl;
   }
   DylibCompile();
 }
