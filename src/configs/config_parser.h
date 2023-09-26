@@ -83,7 +83,6 @@ struct NetworkAgentConfig {
     float update_time{};
 
     std::string network_url;
-    bool is_site_up{true};
     std::pair<size_t, kCompareType> inet_throughput;
 
     std::pair<kAgentError, std::string> Compare(size_t inet_throughput, bool site_access) {
@@ -91,7 +90,7 @@ struct NetworkAgentConfig {
 
         if (!::Compare(this->inet_throughput.first, inet_throughput, this->inet_throughput.second)) 
             error = {kFail, std::string("Network throughput fail! " + std::to_string(inet_throughput))};
-        if (!is_site_up)
+        if (!site_access)
             error = {kFail, std::string("Network fail! Site is down!")};
 
         return error;
@@ -190,76 +189,8 @@ struct VMemoryAgentConfig {
     }
 };
 
-struct SwapAgentConfig {
-    std::string name;
-    float update_time;
-    std::pair<double, kCompareType> swap;
-    std::pair<double, kCompareType> used;
-    std::pair<double, kCompareType> proc_queue;
-
-    int Compare(double swap, double used, double proc_queue) {
-        int result = 0;
-
-        if (::Compare(this->swap.first, swap, this->swap.second) == false)
-            result = 1;
-        else if (::Compare(this->used.first, used, this->used.second) == false)
-            result = 2;
-        else if (::Compare(this->proc_queue.first, proc_queue, this->proc_queue.second) == false)
-            result = 3;
-
-        return result;
-    }
-};
-
-struct SystemConfig {
-    std::string name;
-    float update_time;
-    std::pair<long, kCompareType> inodes;
-    std::pair<double, kCompareType> HRtime;
-    std::pair<int, kCompareType> system_errors;
-    std::pair<int, kCompareType> user_auths;
-    std::pair<int, kCompareType> disknum;
-
-    int Compare(long inodes, double hr, int errors, int auths, int disknum) {
-        int result = 0;
-
-        if (::Compare(this->inodes.first, inodes, this->inodes.second) == false)
-            result = 1;
-        if (::Compare(HRtime.first, hr, this->HRtime.second) == false)
-            result = 2;
-        if (::Compare(system_errors.first, errors, this->system_errors.second) == false)
-            result = 3;
-        if (::Compare(user_auths.first, auths, this->user_auths.second) == false)
-            result = 4;
-        if (::Compare(this->disknum.first, disknum, this->disknum.second) == false)
-            result = 5;
-
-        return result;
-    }
-};
-
-struct VMemoryConfig {
-    std::string name;
-    float update_time;
-    std::pair<double, kCompareType> volume;
-    std::pair<double, kCompareType> free;
-
-    int Compare(double volume, double free) {
-        int result = 0;
-
-        if (::Compare(this->volume.first, volume, this->volume.second) == false)
-            result = 1;
-        if (::Compare(this->free.first, free, this->free.second) == false)
-            result = 2;
-
-        return result;
-    }
-};
-
 class Config {
     public:
-        // Return message about agents. If message empty it's mean no errors.
-        
         std::string Update();
 
         void SetCurrentCPU(double cpu_loading, size_t process_count);
@@ -267,7 +198,7 @@ class Config {
             size_t hardops, double throughput);
         void SetCurrentNetwork(double inet_throughput, bool is_site_up);
         void SetCurrentSpecialCPU(double idle, double user, double priveleged);
-        void SetCurrentSwap(double swap, double used, double proc);
+        void SetCurrentSwap(double swap, double usedswap, double proc_queue);
         void SetCurrentSystem(long inodes, double hr, int err, int auths, int disknum);
         void SetCurrentVMemory(double volume, double free);
 
@@ -282,8 +213,8 @@ class Config {
         NetworkAgentConfig netw_{};
         CPUSpecialAgentConfig cpuspec_{};
         SwapAgentConfig swap_{};
-        SystemConfig system_{};
-        VMemoryConfig vmem_{};
+        SystemAgentConfig system_{};
+        VMemoryAgentConfig vmem_{};
 
         bool IsExistDirectory();
         int CreateDirectory();

@@ -23,8 +23,8 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_);
 int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_);
 int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_);
 int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_);
-int ParseSystem(std::ifstream& file, SystemConfig& system_);
-int ParseVMemory(std::ifstream& file, VMemoryConfig& vmem_);
+int ParseSystem(std::ifstream& file, SystemAgentConfig& system_);
+int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_);
 
 bool Compare(size_t val1, size_t val2, kCompareType& statement) {
     bool result = false;
@@ -131,7 +131,7 @@ void Config::SetCurrentSpecialCPU(double idle, double user, double priveleged) {
         error_msg = result.second;
 }
 
-void Config::SetCurrentSwap(double swap, double usedswap, size_t proc_queue) {
+void Config::SetCurrentSwap(double swap, double usedswap, double proc_queue) {
     std::pair<kAgentError, std::string> result = 
         swap_.Compare(swap, usedswap, proc_queue);
     if (result.first != kOk)
@@ -150,41 +150,6 @@ void Config::SetCurrentVMemory(double volume, double free) {
         vmem_.Compare(volume, free);
     if (result.first != kOk)
         error_msg = result.second;
-}
-
-void Config::SetCurrentSwap(double swap, double used, double proc) {
-    int result = swap_.Compare(swap, used, proc);
-
-    if (result == 1)
-        error_msg = ("TotalSwap fail! Current " + std::to_string(swap));
-    if (result == 2)
-        error_msg = ("UsedSwap fail! Current " + std::to_string(used));
-    if (result == 3)
-        error_msg = ("ProcQueue fail! Current " + std::to_string(proc));
-}
-
-void Config::SetCurrentSystem(long inodes, double hr, int err, int auths, int disknum) {
-    int result = system_.Compare(inodes, hr, err, auths, disknum);
-
-    if (result == 1)
-        error_msg = ("Inodes fail! Current " + std::to_string(inodes));
-    if (result == 2)
-        error_msg = ("HardRead time fail! Current " + std::to_string(hr));
-    if (result == 3)
-        error_msg = ("System Errors fail! Current " + std::to_string(err));
-    if (result == 4)
-        error_msg = ("User Auths fail! Current " + std::to_string(auths));
-    if (result == 5)
-        error_msg = ("Number of disks fail! Current " + std::to_string(disknum));
-}
-
-void Config::SetCurrentVMemory(double volume, double free) {
-    int result = vmem_.Compare(volume, free);
-
-    if (result == 1)
-        error_msg = ("Vmemory volume fail! Current " + std::to_string(volume));
-    if (result == 2)
-        error_msg = ("Vmemory free fail! Current " + std::to_string(free));
 }
 
 std::string Config::Update() {
@@ -424,13 +389,8 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
 
     static std::vector<std::string> need_data = {
         "agent_name=",
-<<<<<<< HEAD
         "total=\"",
         "used=\"",
-=======
-        "total_swap=\"",
-        "used_swap=\"",
->>>>>>> 85b0a3e2b45498a9f466f52de9978288a2e59632
         "proc_queue=\"",
         "update_time=",
     };
@@ -449,10 +409,10 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
             swap_.name = (buffer.substr(offset, buffer.size()));
         
         if (counter == 1)
-            swap_.swap = GetPairOfData(buffer, offset);
+            swap_.total_swap = GetPairOfData(buffer, offset);
         
         if (counter == 2)
-            swap_.used = GetPairOfData(buffer, offset);
+            swap_.used_swap = GetPairOfData(buffer, offset);
 
         if (counter == 3)
             swap_.proc_queue = GetPairOfData(buffer, offset);
@@ -465,6 +425,7 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
 
     return error_code;
 }
+
 
 int ParseSystem(std::ifstream& file, SystemAgentConfig& system_) {
     int error_code = 0;
