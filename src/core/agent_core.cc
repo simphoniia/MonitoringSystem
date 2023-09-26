@@ -79,8 +79,8 @@ void s21::AgentCore::WriteToLog() {
   for (auto it : agents_) {
     if ((it).second.first == true) {
       std::string timestamp = ChangeTimestamp();
-      file_ << "[<" << timestamp << ">]   ";
-      (it).second.second->RefreshData(file_, std::chrono::steady_clock::now());
+      (it).second.second->RefreshData(file_, std::chrono::steady_clock::now(),
+                                      timestamp);
     }
   }
 }
@@ -97,9 +97,9 @@ void s21::AgentCore::DylibCompile() {
             dlsym(libraryHandle, "CreateObject"));
 
     if (!createFunction) {
+      dlclose(libraryHandle);
       throw std::out_of_range(
           "Could not find function for object creation in library.");
-      dlclose(libraryHandle);
     }
 
     std::shared_ptr<s21::BaseAgent> ptr{createFunction()};

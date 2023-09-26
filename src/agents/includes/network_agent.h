@@ -7,12 +7,16 @@ class NetworkAgent : public s21::BaseAgent {
  public:
   bool GetAccessToSite() { return site_access_; }
   double GetInetThroughput() { return inet_throughput_; }
-  void RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) override;
+  void RefreshData(std::ofstream& file,
+                   std::chrono::steady_clock::time_point time,
+                   const std::string& timestamp) override;
   void SetSiteToGetAccess(const std::string& site);
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
+
  private:
- std::chrono::steady_clock::time_point time_delta = std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point time_delta =
+      std::chrono::steady_clock::now();
   Config* config_{};
   bool site_access_{};
   double inet_throughput_{};

@@ -14,7 +14,9 @@
 namespace s21 {
 class BaseAgent {
  public:
-  virtual void RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) = 0;
+  virtual void RefreshData(std::ofstream& file,
+                           std::chrono::steady_clock::time_point time,
+                           const std::string& timestamp) = 0;
 
   virtual bool IsSetConfig() = 0;
   virtual void SetConfigFile(Config* config) = 0;

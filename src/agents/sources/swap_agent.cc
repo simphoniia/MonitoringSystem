@@ -4,10 +4,14 @@
 
 s21::SwapAgent* s21::CreateObject() { return new s21::SwapAgent; }
 
-void s21::SwapAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
+void s21::SwapAgent::RefreshData(std::ofstream& file,
+                                 std::chrono::steady_clock::time_point time,
+                                 const std::string& timestamp) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
+          .count() < update_time_)
+    return;
   static const std::string get_total_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $4)}'"};
   static const std::string get_used_swap{
@@ -32,7 +36,8 @@ void s21::SwapAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock:
   } catch (...) {
     std::cerr << "convertation error!";
   }
-  file << "swap_agent: total_swap: " << total_swap_
+  file << "[<" << timestamp << ">]   "
+       << "swap_agent: total_swap: " << total_swap_
        << " | used_swap: " << used_swap_
        << " | proc_queue_length: " << proc_queue_length_ << '\n';
   config_->SetCurrentSwap(total_swap_, used_swap_, proc_queue_length_);
