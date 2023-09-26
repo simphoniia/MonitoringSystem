@@ -13,14 +13,15 @@ double GetHardThroughput(const std::string& command);
 void s21::MemoryAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  static std::string get_ram_total =
+  static const std::string get_ram_total =
       "sysctl hw.memsize | grep -o -E \"\\d{1,20}\"";
-  static std::string get_ram_usage =
+  static const std::string get_ram_usage =
       "top -l 1 | grep -o -E 'PhysMem: \\d{1,9}'";
-  static std::string get_hard_usage = "df -h ./ | awk '{print $3}' | tail -1";
-  static std::string get_hard_io_usage =
+  static const std::string get_hard_usage =
+      "df -h ./ | awk '{print $3}' | tail -1";
+  static const std::string get_hard_io_usage =
       "iostat -c 2 | awk '{print $2}' | tail -1";
-  static std::string get_hard_throughput =
+  static const std::string get_hard_throughput =
       "dd if=/dev/zero of=/tmp/test.img bs=300000000 count=1 2>>output.txt";
 
   ram_total_ = ::GetRamTotal(get_ram_total);

@@ -109,11 +109,11 @@ struct CPUSpecialAgentConfig {
         std::pair<kAgentError, std::string> error{};
 
         if (!::Compare(this->idle.first, idle, this->idle.second))
-            error = {kFail, std::string("Special idle fail!! " + std::to_string(idle))};
+            error = {kFail, std::string("Special idle fail! " + std::to_string(idle))};
         if (!::Compare(this->user.first, user, this->user.second))
-            error = {kFail, std::string("Special user fail!" + std::to_string(user))};
+            error = {kFail, std::string("Special user fail! " + std::to_string(user))};
         if (!::Compare(this->priveleged.first, priveleged, this->priveleged.second))
-            error = {kFail, std::string("Special priveleged fail!" + std::to_string(priveleged))};
+            error = {kFail, std::string("Special priveleged fail! " + std::to_string(priveleged))};
 
         return error;
     }
@@ -131,11 +131,11 @@ struct SwapAgentConfig {
         std::pair<kAgentError, std::string> error{};
 
         if (!::Compare(this->total_swap.first, total, this->total_swap.second))
-            error = {kFail, std::string("Special idle fail!! " + std::to_string(total))};
+            error = {kFail, std::string("Special idle fail! " + std::to_string(total))};
         if (!::Compare(this->used_swap.first, used, this->used_swap.second))
             error = {kFail, std::string("Special user fail!" + std::to_string(used))};
         if (!::Compare(this->proc_queue.first, proc_queue, this->proc_queue.second))
-            error = {kFail, std::string("Special priveleged fail!" + std::to_string(proc_queue))};
+            error = {kFail, std::string("Special priveleged fail! " + std::to_string(proc_queue))};
 
         return error;
     }
@@ -201,6 +201,7 @@ class Config {
         void SetCurrentSwap(double swap, double usedswap, double proc_queue);
         void SetCurrentSystem(long inodes, double hr, int err, int auths, int disknum);
         void SetCurrentVMemory(double volume, double free);
+        inline void WriteErrorIfFail(const std::pair<kAgentError, std::string>& result);
 
         std::string GetSite() { return netw_.network_url; }
 
@@ -217,10 +218,10 @@ class Config {
         VMemoryAgentConfig vmem_{};
 
         bool IsExistDirectory();
-        int CreateDirectory();
+        inline bool CreateDirectory();
 
         int CheckFiles();
-        int CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
+        bool CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
 
         void ParseConfFiles();
 };

@@ -11,8 +11,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
 
-  static const std::string get_inodes{
-      "df -i | sed -n '2p' | awk '{print $7}'"};
+  static const std::string get_inodes{"df -i | sed -n '2p' | awk '{print $7}'"};
   static const std::string get_number_of_disks{
       "diskutil list | grep \"/dev/disk\" | grep -v \"synthesized\" | wc -l"};
   static const std::string get_disk_read_time{

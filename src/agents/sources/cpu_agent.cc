@@ -11,9 +11,9 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
   // < update_time_ * 1000) return;
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  static std::string get_usage_percent =
+  static const std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";
-  static std::string get_process_count =
+  static const std::string get_process_count =
       "hostinfo | grep -o -E '\\d{1,9} tasks'";
 
   std::string usage_percent =

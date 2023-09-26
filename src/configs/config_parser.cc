@@ -1,5 +1,11 @@
 #include "config_parser.h"
 
+
+/* ================== 
+===       TODO:       ===
+=== Remove this func  ===
+===   Debug-function  ===
+   ================== */
 std::string PrintEnum(kCompareType type) {
     if (type == kCompareType::kEqual) 
         return "==";
@@ -11,8 +17,9 @@ std::string PrintEnum(kCompareType type) {
         return ">";
     else if (type == kCompareType::kNotEqual)
         return "!=";
-    else
+    else if (type == kCompareType::kLess)
         return "<";
+    return "NON REACHEABLE";
 }
 
 bool CreateFileWithData(const std::string& file_name, const std::string& folder_name, const std::vector<std::string>& data);
@@ -27,20 +34,30 @@ int ParseSystem(std::ifstream& file, SystemAgentConfig& system_);
 int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_);
 
 bool Compare(size_t val1, size_t val2, kCompareType& statement) {
-    bool result = false;
+    bool result{};
 
-    if (statement == kCompareType::kEqual) 
-        result = (val1 == val2);
-    else if (statement == kCompareType::kEqualGreater)
-        result = (val1 >= val2);
-    else if (statement == kCompareType::kEqualLess)
-        result = (val1 <= val2);
-    else if (statement == kCompareType::kGreater)
-        result = (val1 > val2);
-    else if (statement == kCompareType::kNotEqual)
-        result = (val1 != val2);
-    else
-        result = (val1 < val2);
+    switch (statement) {
+        case kCompareType::kEqual:
+            result = (val1 == val2);
+            break;
+        case kCompareType::kEqualGreater:
+            result = (val1 >= val2);
+            break;
+        case kCompareType::kEqualLess:
+            result = (val1 <= val2);
+            break;
+        case kCompareType::kGreater:
+            result = (val1 > val2);
+            break;
+        case kCompareType::kNotEqual:
+            result = (val1 != val2);
+            break;
+        case kCompareType::kLess:
+            result = (val1 < val2);
+            break;
+        default:
+            std::cerr << "Unreacheble code.\n";
+    };
 
     return result;
 }
@@ -102,63 +119,58 @@ bool Compare(int val1, int val2, kCompareType& statement) {
     return result;
 }
 
+inline void Config::WriteErrorIfFail(const std::pair<kAgentError, std::string>& result) {
+    if (result.first != kOk)
+        error_msg = std::move(result.second);
+}
+
 void Config::SetCurrentCPU(double cpu_loading, size_t process_count) {
     std::pair<kAgentError, std::string> result = cpu_.Compare(cpu_loading, process_count);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentMemory(double total, double usage, double volume,
             size_t hardops, double throughput) {
     std::pair<kAgentError, std::string> result = 
         mem_.Compare(total, usage, volume, hardops, throughput);
-    if (result.first != kOk)
-        error_msg = result.second;
-
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentNetwork(double inet_throughput, bool is_site_up) {
     std::pair<kAgentError, std::string> result = 
         netw_.Compare(inet_throughput, is_site_up);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentSpecialCPU(double idle, double user, double priveleged) {
     std::pair<kAgentError, std::string> result = 
         cpuspec_.Compare(idle, user, priveleged);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentSwap(double swap, double usedswap, double proc_queue) {
     std::pair<kAgentError, std::string> result = 
         swap_.Compare(swap, usedswap, proc_queue);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentSystem(long inodes, double hardreadtime, int errors, int auths, int disknum) {
     std::pair<kAgentError, std::string> result = 
         system_.Compare(inodes, hardreadtime, errors, auths, disknum);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 void Config::SetCurrentVMemory(double volume, double free) {
     std::pair<kAgentError, std::string> result = 
         vmem_.Compare(volume, free);
-    if (result.first != kOk)
-        error_msg = result.second;
+    WriteErrorIfFail(result);
 }
 
 std::string Config::Update() {
     std::string error_message;
 
-    if (!IsExistDirectory()) {
-        if (CreateDirectory())
-            error_message = "Could not to create a /agents_config/ directory";
-    }
+    if (!IsExistDirectory() && CreateDirectory())
+        error_message = "Could not to create a /agents_config/ directory";
 
     if (CheckFiles())
         error_message = "Could not to create a config file.";
@@ -206,7 +218,7 @@ void Config::ParseConfFiles() {
 }
 
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -218,7 +230,7 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -226,17 +238,16 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
             offset += need_data[counter].size();
             if (counter == 0)
                 cpu_.name = (buffer.substr(offset, buffer.size()));
-            else if (counter == 1 || counter == 2) {
-                std::pair<double, kCompareType> pair_of_data = GetPairOfData(buffer, offset);
-                if (pair_of_data.second == kCompareType::kNone) error_code = 1;
-                if (!error_code) {
-                    if (counter == 1)
-                        cpu_.load = pair_of_data;
-                    else
-                        cpu_.proc_num = pair_of_data;
-                }
-            } else if (counter == 3)
+
+            if (counter == 1)
+                cpu_.load = GetPairOfData(buffer, offset);
+
+            if (counter == 2)
+                cpu_.proc_num = GetPairOfData(buffer, offset);
+
+            if (counter == 3)
                 cpu_.update_time = (std::stof(SubFunctions::GetOnlyDigits(buffer)));
+
             counter++;
         }
     }
@@ -245,7 +256,7 @@ int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {
 }
 
 int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -257,11 +268,10 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
         "update_time="
     };
 
-
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -302,7 +312,7 @@ int ParseMemory(std::ifstream& file, MemoryAgentConfig& mem_) {
 }
 
 int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -314,7 +324,7 @@ int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -343,7 +353,7 @@ int ParseNetwork(std::ifstream& file, NetworkAgentConfig& netw_) {
 }
 
 int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -356,7 +366,7 @@ int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -385,7 +395,7 @@ int ParseSpecial(std::ifstream& file, CPUSpecialAgentConfig& cpuspec_) {
 }
 
 int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -398,7 +408,7 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -428,7 +438,7 @@ int ParseSwap(std::ifstream& file, SwapAgentConfig& swap_) {
 
 
 int ParseSystem(std::ifstream& file, SystemAgentConfig& system_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -443,7 +453,7 @@ int ParseSystem(std::ifstream& file, SystemAgentConfig& system_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -478,7 +488,7 @@ int ParseSystem(std::ifstream& file, SystemAgentConfig& system_) {
 }
 
 int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_) {
-    int error_code = 0;
+    int error_code{};
 
     static std::vector<std::string> need_data = {
         "agent_name=",
@@ -491,7 +501,7 @@ int ParseVMemory(std::ifstream& file, VMemoryAgentConfig& vmem_) {
     size_t counter{};
     size_t offset;
     std::string buffer;
-    buffer.reserve(50);
+    buffer.reserve(70);
 
     while (std::getline(file, buffer)) {
         offset = buffer.find(need_data[counter]);
@@ -559,18 +569,13 @@ inline bool Config::IsExistDirectory() {
     return std::filesystem::is_directory("./agents_config/");
 }
 
-int Config::CreateDirectory() {
+inline bool Config::CreateDirectory() {
     SubFunctions::ExecCommand("mkdir agents_config");
-
-    int error = 0;
-    error = !(IsExistDirectory());
-    return error;
+    return !(IsExistDirectory());
 }
 
 int Config::CheckFiles() {
-    int error = 0;
-
-    static std::vector<std::string> agents_config = {  
+    static const std::vector<std::string> agents_config = {  
         "cpu_agent.conf",
         "memory_agent.conf",
         "network_agent.conf",
@@ -580,6 +585,7 @@ int Config::CheckFiles() {
         "vmemory_agent.conf"
     };
 
+    int error{};
     for (size_t i = 0; i < agents_config.size() && !error; i++) {
         std::string path = "./agents_config/" + agents_config[i];
         
@@ -595,16 +601,14 @@ inline int CreateFile(const std::string& file_name, const std::string& folder) {
     return !std::filesystem::exists(folder + "/" + file_name);
 } 
 
-int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
-    int error = 0;
-
-    static std::string folder_name = "agents_config";
-    static std::vector<std::vector<std::string>> default_file_data = {
+bool Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
+    static const std::string folder_name = "agents_config";
+    static const std::vector<std::vector<std::string>> default_file_data = {
         {
             "agent_name=CPU_AGENT\n",
             "load_metric=\">= 50\"\n",
             "processes_metric=\">= 1000\"\n",
-            "\nupdate_time=4"
+            "update_time=4"
         }, 
         {
             "agent_name=MEMORY_AGENT\n",
@@ -613,27 +617,27 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
             "volume_metric=\"<= 1.0\"\n",
             "hardops_metric=\"== 0\"\n",
             "hardthroughput_metric=\"== 0\"\n",
-            "\nupdate_time=4\n"
+            "update_time=4"
         },
         {
             "agent_name=NETWORK_AGENT\n",
             "url=\"2ip.ru\"\n",
             "inet_throughput_metric=\"> 0\"\n",
-            "update_time=5\n"
+            "update_time=5"
         },
         {
             "agent_name=CPU_SPECIAL_AGENT\n",
             "idle=\">= 1000\"\n",
             "user_usage=\">= 1000\"\n",
             "priveleged=\">= 1000\"\n",
-            "update_time=5\n"
+            "update_time=5"
         },
         {
             "agent_name=SWAP_AGENT\n",
             "total=\">= 1000\"\n",
             "used=\">= 1000\"\n",
             "proc_queue=\">= 1000\"\n",
-            "update_time=5\n"
+            "update_time=5"
         },
         {
             "agent_name=SYSTEM_AGENT\n",
@@ -642,19 +646,17 @@ int Config::CreateDefaultFiles(const std::pair<std::string, int>& agents_name) {
             "system_errors=\"<= 1.0\"\n",
             "user_auths=\"!= 0\"\n",
             "disk_number=\"!= 0\"\n",
-            "\nupdate_time=4\n"
+            "update_time=4"
         },
         {
-            "agent_name=VIRTUAL_AGENT\n",
+            "agent_name=VMEMORY_AGENT\n",
             "volume=\"> 34000\"\n",
             "mem_free=\">= 13000\"\n",
-            "\nupdate_time=4\n"
+            "update_time=4"
         }
     };
 
-    error = CreateFileWithData(agents_name.first, folder_name, default_file_data[agents_name.second]);
-
-    return error;
+    return CreateFileWithData(agents_name.first, folder_name, default_file_data[agents_name.second]);;
 }
 
 inline void FillFile(std::ofstream& stream, const std::vector<std::string>& data) {

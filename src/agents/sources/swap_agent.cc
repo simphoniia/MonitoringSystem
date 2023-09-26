@@ -7,11 +7,11 @@ s21::SwapAgent* s21::CreateObject() { return new s21::SwapAgent; }
 void s21::SwapAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  const std::string get_total_swap{
+  static const std::string get_total_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $4)}'"};
-  const std::string get_used_swap{
+  static const std::string get_used_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $7)}'"};
-  const std::string get_proc_queue_length{
+  static const std::string get_proc_queue_length{
       "top -l 1 | head -n 10 | grep \"Processes:\" | awk '{print $6}'"};
 
   std::string total_swap = SubFunctions::ExecCommand(get_total_swap.c_str());

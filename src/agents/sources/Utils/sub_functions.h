@@ -12,7 +12,7 @@
 namespace SubFunctions {
 std::string ExecCommand(const char* cmd);
 std::string GetOnlyDigits(const std::string& output);
-std::string GetIostatParam(int position);
+//std::string GetIostatParam(int position);
 }  // namespace SubFunctions
 
 #endif  //  SRC_AGENTS_SOURCES_UTILS_SUB_FUNCTIONS_H_

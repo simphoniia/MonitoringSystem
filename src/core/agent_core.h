@@ -32,7 +32,7 @@ class AgentCore {
       agents_;
   std::set<std::string> new_agents_;
   std::vector<void*> libs_;
-  Config* config_;
+  Config* config_{};
   void LogFileCreation();
   std::string ChangeTimestamp();
   void WriteToLog();

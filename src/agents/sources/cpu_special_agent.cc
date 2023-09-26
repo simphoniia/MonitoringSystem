@@ -7,11 +7,11 @@ s21::CpuSpecialAgent* s21::CreateObject() { return new s21::CpuSpecialAgent; }
 void s21::CpuSpecialAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  const std::string get_cpu_idle_usage{
+  static const std::string get_cpu_idle_usage{
       "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $7)}'"};
-  const std::string get_cpu_user_usage{
+  static const std::string get_cpu_user_usage{
       "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $3)}'"};
-  const std::string get_cpu_priveleged_usage{
+  static const std::string get_cpu_priveleged_usage{
       "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $5)}'"};
 
   std::string cpu_idle_usage =

@@ -8,17 +8,17 @@ double GetPage(const std::string& command);
 
 void s21::VmemoryAgent::RefreshData(std::ofstream& file) {
   if (!file.is_open()) return;
-  const std::string get_virtual_page_size{
+  static const std::string get_virtual_page_size{
       "vm_stat | grep 'page size' | awk '{print $8}'"};
-  const std::string get_pages_free{
+  static const std::string get_pages_free{
       "vm_stat | grep 'Pages free' | awk '{printf(\"%lf\", $3)}'"};
-  const std::string get_pages_active{
+  static const std::string get_pages_active{
       "vm_stat | grep 'Pages active' | awk '{printf(\"%lf\", $3)}'"};
-  const std::string get_pages_inactive{
+  static const std::string get_pages_inactive{
       "vm_stat | grep 'Pages inactive' | awk '{printf(\"%lf\", $3)}'"};
-  const std::string get_pages_speculative{
+  static const std::string get_pages_speculative{
       "vm_stat | grep 'Pages speculative' | awk '{printf(\"%lf\", $3)}'"};
-  const std::string get_pages_wired_down{
+  static const std::string get_pages_wired_down{
       "vm_stat | grep 'Pages wired down' | awk '{printf(\"%lf\", $4)}'"};
 
   double page_size = GetPage(get_virtual_page_size);

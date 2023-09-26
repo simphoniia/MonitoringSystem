@@ -11,8 +11,8 @@ void s21::NetworkAgent::RefreshData(std::ofstream& file) {
 
   site_ = config_->GetSite();
 
-  static std::string get_access_ping = "ping -t 1 -c 1 ";
-  static std::string get_info_from_ping =
+  static const std::string get_access_ping = "ping -t 1 -c 1 ";
+  static const std::string get_info_from_ping =
       " | tail -n 2 | head -n 1 | awk '{print $7}'";
 
   site_access_ = IsSiteConnectionUp(site_);
@@ -25,7 +25,7 @@ void s21::NetworkAgent::RefreshData(std::ofstream& file) {
 }
 
 double InetThroughputInfo() {
-  static std::string get_inet_throughput =
+  static const std::string get_inet_throughput =
       "netstat -bI en0 | awk '{print ($7+$10)}' | tail -1";
   std::string res = SubFunctions::ExecCommand(get_inet_throughput.c_str());
   double download_speed{};

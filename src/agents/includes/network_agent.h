@@ -9,7 +9,6 @@ class NetworkAgent : public s21::BaseAgent {
   double GetInetThroughput() { return inet_throughput_; }
   void RefreshData(std::ofstream& file) override;
   void SetSiteToGetAccess(const std::string& site);
-
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
  private:

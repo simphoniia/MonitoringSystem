@@ -99,7 +99,7 @@ void s21::AgentCore::DylibCompile() {
 
     if (!createFunction) {
       throw std::out_of_range(
-          "Не удалось найти функцию создания объекта в библиотеке");
+          "Could not find function for object creation in library.");
       dlclose(libraryHandle);
     }
 
