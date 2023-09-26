@@ -10,10 +10,14 @@ double GetHardUsage(const std::string& command);
 int GetHardIOUsage(const std::string& command);
 double GetHardThroughput(const std::string& command);
 
-void s21::MemoryAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
+void s21::MemoryAgent::RefreshData(std::ofstream& file,
+                                   std::chrono::steady_clock::time_point time,
+                                   const std::string& timestamp) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
+          .count() < update_time_)
+    return;
   static const std::string get_ram_total =
       "sysctl hw.memsize | grep -o -E \"\\d{1,20}\"";
   static const std::string get_ram_usage =
@@ -30,7 +34,8 @@ void s21::MemoryAgent::RefreshData(std::ofstream& file, std::chrono::steady_cloc
   hard_usage_ = ::GetHardUsage(get_hard_usage);
   hard_io_persec_ = ::GetHardIOUsage(get_hard_io_usage);
   hard_throughput_ = ::GetHardThroughput(get_hard_throughput);
-  file << "memory_agent: ram_total " << ram_total_ << " | ram: " << ram_usage_
+  file << "[<" << timestamp << ">]   "
+       << "memory_agent: ram_total " << ram_total_ << " | ram: " << ram_usage_
        << " | hard_volume: " << hard_usage_
        << " | hard_ops: " << hard_io_persec_
        << " | hard_throughput: " << hard_throughput_ << '\n';

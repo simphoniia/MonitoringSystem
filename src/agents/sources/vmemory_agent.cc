@@ -6,10 +6,14 @@ s21::VmemoryAgent* s21::CreateObject() { return new s21::VmemoryAgent; }
 
 double GetPage(const std::string& command);
 
-void s21::VmemoryAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
+void s21::VmemoryAgent::RefreshData(std::ofstream& file,
+                                    std::chrono::steady_clock::time_point time,
+                                    const std::string& timestamp) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
+          .count() < update_time_)
+    return;
   static const std::string get_virtual_page_size{
       "vm_stat | grep 'page size' | awk '{print $8}'"};
   static const std::string get_pages_free{
@@ -34,7 +38,8 @@ void s21::VmemoryAgent::RefreshData(std::ofstream& file, std::chrono::steady_clo
   virtual_mem_volume_ = (pages_free + pages_active + pages_inactive +
                          pages_speculative + pages_wired_down) *
                         page_size / 1024 / 1024;
-  file << "v_memory_agent: virtual_mem_volume: " << virtual_mem_volume_ << " MB"
+  file << "[<" << timestamp << ">]   "
+       << "v_memory_agent: virtual_mem_volume: " << virtual_mem_volume_ << " MB"
        << " | virtual_mem_free: " << virtual_mem_free_ << " MB\n";
   config_->SetCurrentVMemory(virtual_mem_volume_, virtual_mem_free_);
   time_delta = time;
