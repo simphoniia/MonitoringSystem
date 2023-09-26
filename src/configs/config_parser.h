@@ -223,9 +223,6 @@ class Config {
         int CreateDefaultFiles(const std::pair<std::string, int>& agents_name);
 
         void ParseConfFiles();
-
-        // const std::string& GetAgentsInfo();
-
 };
 
 #endif  //  SRC_CONFIGS_CONFIG_PARSER_H_

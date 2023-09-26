@@ -29,12 +29,14 @@ void s21::CpuSpecialAgent::RefreshData(std::ofstream& file) {
     std::cerr << "convertaion error!";
   }
   file << "cpu_special_agent: idle: " << cpu_idle_usage_
-        << " | user: " << cpu_user_usage_
-        << " | priveleged: " << cpu_priveleged_usage_ << '\n';
-  config_->SetCurrentSpecialCPU(cpu_idle_usage_, cpu_user_usage_, cpu_priveleged_usage_);
+       << " | user: " << cpu_user_usage_
+       << " | priveleged: " << cpu_priveleged_usage_ << '\n';
+  config_->SetCurrentSpecialCPU(cpu_idle_usage_, cpu_user_usage_,
+                                cpu_priveleged_usage_);
 }
-
 
 inline bool s21::CpuSpecialAgent::IsSetConfig() { return config_; }
 
-inline void s21::CpuSpecialAgent::SetConfigFile(Config* config) { config_ = config; }
+inline void s21::CpuSpecialAgent::SetConfigFile(Config* config) {
+  config_ = config;
+}

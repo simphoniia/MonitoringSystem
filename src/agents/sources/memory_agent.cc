@@ -33,7 +33,8 @@ void s21::MemoryAgent::RefreshData(std::ofstream& file) {
        << " | hard_ops: " << hard_io_persec_
        << " | hard_throughput: " << hard_throughput_ << '\n';
 
-  config_->SetCurrentMemory(ram_total_, ram_usage_, hard_usage_, hard_io_persec_, hard_throughput_);
+  config_->SetCurrentMemory(ram_total_, ram_usage_, hard_usage_,
+                            hard_io_persec_, hard_throughput_);
 }
 
 double GetRamTotal(const std::string& command) {
@@ -89,4 +90,6 @@ double GetHardThroughput(const std::string& command) {
 
 inline bool s21::MemoryAgent::IsSetConfig() { return config_; }
 
-inline void s21::MemoryAgent::SetConfigFile(Config* config) { config_ = config; }
+inline void s21::MemoryAgent::SetConfigFile(Config* config) {
+  config_ = config;
+}

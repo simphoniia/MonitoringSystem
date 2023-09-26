@@ -10,7 +10,6 @@ void s21::NetworkAgent::RefreshData(std::ofstream& file) {
   if (!IsSetConfig()) return;
 
   site_ = config_->GetSite();
-  std::cout << "Site to check is " << site_ << "\n";
 
   static std::string get_access_ping = "ping -t 1 -c 1 ";
   static std::string get_info_from_ping =
@@ -65,4 +64,6 @@ void s21::NetworkAgent::SetSiteToGetAccess(const std::string& site) {
 
 inline bool s21::NetworkAgent::IsSetConfig() { return config_; }
 
-inline void s21::NetworkAgent::SetConfigFile(Config* config) { config_ = config; }
+inline void s21::NetworkAgent::SetConfigFile(Config* config) {
+  config_ = config;
+}

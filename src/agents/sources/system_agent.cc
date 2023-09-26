@@ -12,7 +12,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
   if (!IsSetConfig()) return;
 
   static const std::string get_inodes{
-      "df -i | sed -n '2p' | awk '{print $7}'"};  // ???
+      "df -i | sed -n '2p' | awk '{print $7}'"};
   static const std::string get_number_of_disks{
       "diskutil list | grep \"/dev/disk\" | grep -v \"synthesized\" | wc -l"};
   static const std::string get_disk_read_time{
@@ -38,13 +38,14 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
     hard_read_time_ = ReadTimeCalculation(get_disk_read_time);
     number_of_disks_ = std::stoi(number_of_disks);
   } catch (...) {
-    std::cerr << "convertaion error!";
+    std::cerr << "convertaion error!\n";
   }
   file << "system_agene: inodes: " << inodes_
        << " | system_errors: " << system_errors_
        << " | user_auths: " << user_auths_
        << " | hard_read_time: " << hard_read_time_ << " MB/s\n";
-  config_->SetCurrentSystem(inodes_, hard_read_time_, system_errors_, user_auths_, number_of_disks_);
+  config_->SetCurrentSystem(inodes_, hard_read_time_, system_errors_,
+                            user_auths_, number_of_disks_);
 }
 
 double GetDiskReadTime(std::string command, int position) {
@@ -72,4 +73,6 @@ double ReadTimeCalculation(const std::string &command) {
 
 inline bool s21::SystemAgent::IsSetConfig() { return config_; }
 
-inline void s21::SystemAgent::SetConfigFile(Config* config) { config_ = config; }
+inline void s21::SystemAgent::SetConfigFile(Config *config) {
+  config_ = config;
+}
