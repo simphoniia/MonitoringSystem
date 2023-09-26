@@ -28,25 +28,27 @@ build: utils.a config.a agent_core.a
 agent_core.a:
 	$(gcc) -c core/agent_core.cc -o objects/agent_core.o
 
-cpu_agent.a:
+build_all_agents: cpu_agent.a cpu_special_agent.a memory_agent.a vmemory_agent.a swap_agent.a system_agent.a network_agent.a
+
+cpu_agent:
 	$(gcc) -shared -o objects/cpu_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'cpu_agent.cc')
 	
-cpu_special_agent.a:
+cpu_special_agent:
 	$(gcc) -shared -o objects/cpu_special_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'cpu_special_agent.cc')
 
-memory_agent.a:
+memory_agent:
 	$(gcc) -shared -o objects/memory_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'memory_agent.cc')
 
-vmemory_agent.a:
+vmemory_agent:
 	$(gcc) -shared -o objects/vmemory_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'vmemory_agent.cc')
 
-swap_agent.a:
+swap_agent:
 	$(gcc) -shared -o objects/swap_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'swap_agent.cc')
 
-system_agent.a:
+system_agent:
 	$(gcc) -shared -o objects/system_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'system_agent.cc')
 
-network_agent.a:
+network_agent:
 	$(gcc) -shared -o objects/network_agent.dylib $(TOTAL_SUB) $(shell find $(DIRS)/sources -name 'network_agent.cc')
 
 utils.a:
