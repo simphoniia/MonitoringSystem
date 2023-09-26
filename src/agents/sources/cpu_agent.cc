@@ -6,11 +6,10 @@ using namespace std::chrono;
 
 s21::CpuAgent* s21::CreateObject() { return new s21::CpuAgent; }
 
-void s21::CpuAgent::RefreshData(std::ofstream& file) {
-  // if (duration_cast<milliseconds>(high_resolution_clock::now() - time_begin_)
-  // < update_time_ * 1000) return;
+void s21::CpuAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
   static const std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";
   static const std::string get_process_count =
@@ -31,12 +30,12 @@ void s21::CpuAgent::RefreshData(std::ofstream& file) {
     cpu_loading_ = 100.0 - std::stod(usage_percent);
     process_count_ = std::stoi(process_count);
   } catch (...) {
-    std::cerr << "convertaion error!";
+    std::cerr << "convertation error!";
   }
   file << "cpu_agent: cpu: " << cpu_loading_
        << " | processes: " << process_count_ << '\n';
   config_->SetCurrentCPU(cpu_loading_, process_count_);
-  // time_begin = ...;
+  time_delta = time;
 }
 
 inline bool s21::CpuAgent::IsSetConfig() { return config_; }

@@ -61,7 +61,6 @@ void s21::AgentCore::LogFileCreation() {
   std::stringstream stream;
   stream << std::put_time(std::localtime(&time), "%Y-%m-%d");
   std::string date_string = stream.str();
-
   std::string fname =
       "logs/" + date_string + ".txt";  // путь к файлу (изменить!)
   file_.open(fname, std::ios::app);
@@ -81,7 +80,7 @@ void s21::AgentCore::WriteToLog() {
     if ((it).second.first == true) {
       std::string timestamp = ChangeTimestamp();
       file_ << "[<" << timestamp << ">]   ";
-      (it).second.second->RefreshData(file_);
+      (it).second.second->RefreshData(file_, std::chrono::steady_clock::now());
     }
   }
 }

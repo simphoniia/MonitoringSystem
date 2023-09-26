@@ -5,9 +5,10 @@ bool IsSiteConnectionUp(const std::string& site);
 
 s21::NetworkAgent* s21::CreateObject() { return new s21::NetworkAgent; }
 
-void s21::NetworkAgent::RefreshData(std::ofstream& file) {
+void s21::NetworkAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
 
   site_ = config_->GetSite();
 
@@ -22,6 +23,7 @@ void s21::NetworkAgent::RefreshData(std::ofstream& file) {
   file << " | inet_throughput: " << inet_throughput_ << "\n";
 
   config_->SetCurrentNetwork(inet_throughput_, site_access_);
+  time_delta = time;
 }
 
 double InetThroughputInfo() {

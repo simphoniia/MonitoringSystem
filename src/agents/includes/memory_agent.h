@@ -6,16 +6,18 @@
 namespace s21 {
 class MemoryAgent : public s21::BaseAgent {
  public:
-  void RefreshData(std::ofstream& file) override;
+  void RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) override;
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
  private:
+  std::chrono::steady_clock::time_point time_delta = std::chrono::steady_clock::now();
   Config* config_{};
   double ram_total_{};
   double ram_usage_{};
   double hard_usage_{};
   size_t hard_io_persec_{};
   double hard_throughput_{};
+  int update_time_{3};
 };
 
 extern "C" {

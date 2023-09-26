@@ -7,10 +7,10 @@ s21::SystemAgent *s21::CreateObject() { return new s21::SystemAgent; }
 double GetDiskReadTime(std::string command, int position);
 double ReadTimeCalculation(const std::string &command);
 
-void s21::SystemAgent::RefreshData(std::ofstream &file) {
+void s21::SystemAgent::RefreshData(std::ofstream &file, std::chrono::steady_clock::time_point time) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
-
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
   static const std::string get_inodes{"df -i | sed -n '2p' | awk '{print $7}'"};
   static const std::string get_number_of_disks{
       "diskutil list | grep \"/dev/disk\" | grep -v \"synthesized\" | wc -l"};
@@ -37,7 +37,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
     hard_read_time_ = ReadTimeCalculation(get_disk_read_time);
     number_of_disks_ = std::stoi(number_of_disks);
   } catch (...) {
-    std::cerr << "convertaion error!\n";
+    std::cerr << "convertation error!\n";
   }
   file << "system_agene: inodes: " << inodes_
        << " | system_errors: " << system_errors_
@@ -45,6 +45,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file) {
        << " | hard_read_time: " << hard_read_time_ << " MB/s\n";
   config_->SetCurrentSystem(inodes_, hard_read_time_, system_errors_,
                             user_auths_, number_of_disks_);
+  time_delta = time;
 }
 
 double GetDiskReadTime(std::string command, int position) {

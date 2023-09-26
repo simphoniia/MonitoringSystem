@@ -4,9 +4,10 @@
 
 s21::CpuSpecialAgent* s21::CreateObject() { return new s21::CpuSpecialAgent; }
 
-void s21::CpuSpecialAgent::RefreshData(std::ofstream& file) {
+void s21::CpuSpecialAgent::RefreshData(std::ofstream& file, std::chrono::steady_clock::time_point time) {
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
+  if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta).count() < update_time_) return;
   static const std::string get_cpu_idle_usage{
       "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $7)}'"};
   static const std::string get_cpu_user_usage{
@@ -26,13 +27,14 @@ void s21::CpuSpecialAgent::RefreshData(std::ofstream& file) {
     cpu_user_usage_ = std::stod(cpu_user_usage);
     cpu_priveleged_usage_ = std::stod(cpu_priveleged_usage);
   } catch (...) {
-    std::cerr << "convertaion error!";
+    std::cerr << "convertation error!";
   }
   file << "cpu_special_agent: idle: " << cpu_idle_usage_
        << " | user: " << cpu_user_usage_
        << " | priveleged: " << cpu_priveleged_usage_ << '\n';
   config_->SetCurrentSpecialCPU(cpu_idle_usage_, cpu_user_usage_,
                                 cpu_priveleged_usage_);
+  time_delta = time;
 }
 
 inline bool s21::CpuSpecialAgent::IsSetConfig() { return config_; }
