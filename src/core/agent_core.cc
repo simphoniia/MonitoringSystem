@@ -1,5 +1,12 @@
 #include "agent_core.h"
 
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <thread>
+
 using namespace std::chrono;
 
 s21::AgentCore::AgentCore() { CheckNewAgents(); }
@@ -66,21 +73,11 @@ void s21::AgentCore::LogFileCreation() {
   file_.open(fname, std::ios::app);
 }
 
-std::string s21::AgentCore::ChangeTimestamp() {
-  auto now = std::chrono::system_clock::now();
-  std::time_t time = std::chrono::system_clock::to_time_t(now);
-  std::stringstream stream;
-  stream << std::put_time(std::localtime(&time), "%H:%M:%S");
-
-  return stream.str();
-}
-
 void s21::AgentCore::WriteToLog() {
   for (auto it : agents_) {
     if ((it).second.first == true) {
-      std::string timestamp = ChangeTimestamp();
       (it).second.second->RefreshData(file_, std::chrono::steady_clock::now(),
-                                      timestamp);
+                                      time_changer_.GetTimestamp());
     }
   }
 }
@@ -116,4 +113,14 @@ void s21::AgentCore::SetConfigFile(Config* config) {
       (agents).second.second->SetConfigFile(config_);
     }
   }
+}
+
+// TimestampChanger
+void s21::TimestampChanger::ChangeTimestamp() {
+  auto now = std::chrono::system_clock::now();
+  std::time_t time = std::chrono::system_clock::to_time_t(now);
+  std::stringstream stream;
+  stream << std::put_time(std::localtime(&time), "%H:%M:%S");
+
+  timestamp_ = stream.str();
 }
