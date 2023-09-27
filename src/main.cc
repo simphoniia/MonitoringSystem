@@ -5,8 +5,8 @@
 #include <sstream>
 #include <thread>
 
-#include "core/agent_core.h"
 #include "configs/config_parser.h"
+#include "core/agent_core.h"
 
 using namespace std::chrono;
 
@@ -16,7 +16,6 @@ int main() {
   s21::AgentCore agent_core;
   std::unique_ptr<Config> config_(new Config);
 
-  int i = 0;
   std::string error;
   while (true) {
     t0 = high_resolution_clock::now();
@@ -24,10 +23,10 @@ int main() {
     agent_core.UpdateMetrics();
     error = config_->Update();
     t1 = high_resolution_clock::now();
-    std::cout << "Time: " << duration_cast<milliseconds>(t1 - t0).count()
-              << "msec\n";
-    if (!error.empty()) std::cout << "ERROR! Type of error is: " << error << "\n";
-    i++;
+    // std::cout << "Time: " << duration_cast<milliseconds>(t1 - t0).count()
+    //           << "msec\n";
+    if (!error.empty())
+      std::cout << "ERROR! Type of error is: " << error << "\n";
   }
 
   return 0;
