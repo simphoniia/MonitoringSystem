@@ -9,6 +9,16 @@
 #include "../configs/config_parser.h"
 
 namespace s21 {
+class DylibCompiler {
+ public:
+  ~DylibCompiler();
+  std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>>
+  DylibCompile(std::set<std::string> new_agents);
+
+ private:
+  std::vector<void*> libs_;
+};
+
 class TimestampChanger {
  public:
   std::string GetTimestamp() {
@@ -25,7 +35,6 @@ class AgentCore {
  public:
   AgentCore();
   void SetConfigFile(Config* config);
-  ~AgentCore();
   void UpdateMetrics();
   void CheckNewAgents();
   int NumberOfActiveAgents();
@@ -34,14 +43,13 @@ class AgentCore {
 
  private:
   TimestampChanger time_changer_;
+  DylibCompiler compilier_;
   std::ofstream file_;
   std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>>
       agents_;
   std::set<std::string> new_agents_;
-  std::vector<void*> libs_;
   Config* config_{};
   void LogFileCreation();
   void WriteToLog();
-  void DylibCompile();
 };
 }  // namespace s21

@@ -38,7 +38,7 @@ void s21::AgentCore::CheckNewAgents() {
   } catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }
-  DylibCompile();
+  agents_.merge(compilier_.DylibCompile(new_agents_));
 }
 
 int s21::AgentCore::NumberOfActiveAgents() {
@@ -56,10 +56,6 @@ void s21::AgentCore::DisableAgent(const std::string& filepath) {
 void s21::AgentCore::EnableAgent(const std::string& filepath) {
   if (agents_.find(filepath) == agents_.end()) return;
   (*agents_.find(filepath)).second.first = true;
-}
-
-s21::AgentCore::~AgentCore() {
-  for (auto it : libs_) dlclose(it);
 }
 
 void s21::AgentCore::LogFileCreation() {
@@ -82,29 +78,6 @@ void s21::AgentCore::WriteToLog() {
   }
 }
 
-void s21::AgentCore::DylibCompile() {
-  for (auto it : new_agents_) {
-    void* libraryHandle = dlopen((it).c_str(), RTLD_LAZY);
-    if (!libraryHandle) {
-      throw std::out_of_range("NO FILE");
-    }
-
-    s21::BaseAgent* (*createFunction)() =
-        reinterpret_cast<s21::BaseAgent* (*)()>(
-            dlsym(libraryHandle, "CreateObject"));
-
-    if (!createFunction) {
-      dlclose(libraryHandle);
-      throw std::out_of_range(
-          "Could not find function for object creation in library.");
-    }
-
-    std::shared_ptr<s21::BaseAgent> ptr{createFunction()};
-    agents_.insert({it, {true, ptr}});
-    libs_.push_back(libraryHandle);
-  }
-}
-
 void s21::AgentCore::SetConfigFile(Config* config) {
   if (config_ != config) config_ = config;
 
@@ -123,4 +96,30 @@ void s21::TimestampChanger::ChangeTimestamp() {
   stream << std::put_time(std::localtime(&time), "%H:%M:%S");
 
   timestamp_ = stream.str();
+}
+
+// DylibCompiler
+s21::DylibCompiler::~DylibCompiler() {
+  for (auto it : libs_) dlclose(it);
+}
+
+std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>>
+s21::DylibCompiler::DylibCompile(std::set<std::string> new_agents_) {
+  std::map<std::string, std::pair<bool, std::shared_ptr<s21::BaseAgent>>>
+      agents_;
+  for (auto it : new_agents_) {
+    void* libraryHandle = dlopen((it).c_str(), RTLD_LAZY);
+    if (!libraryHandle) {
+      throw std::out_of_range("NO FILE");
+    }
+
+    s21::BaseAgent* (*createFunction)() =
+        reinterpret_cast<s21::BaseAgent* (*)()>(
+            dlsym(libraryHandle, "CreateObject"));
+
+    std::shared_ptr<s21::BaseAgent> ptr{createFunction()};
+    agents_.insert({it, {true, ptr}});
+    libs_.push_back(libraryHandle);
+  }
+  return agents_;
 }
