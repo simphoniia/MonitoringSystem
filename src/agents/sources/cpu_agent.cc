@@ -12,7 +12,7 @@ void s21::CpuAgent::RefreshData(std::ofstream& file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->GetAwaitTime(config_->CPU))
     return;
   static const std::string get_usage_percent =
       "top -l 1 | grep -o -E '\\d{1,9}.\\d{0,9}% idle'";

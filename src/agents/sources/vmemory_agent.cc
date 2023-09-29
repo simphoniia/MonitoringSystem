@@ -12,7 +12,7 @@ void s21::VmemoryAgent::RefreshData(std::ofstream& file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->VMEM)
     return;
   static const std::string get_virtual_page_size{
       "vm_stat | grep 'page size' | awk '{print $8}'"};

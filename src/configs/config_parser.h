@@ -207,6 +207,18 @@ class Config {
 
         std::string error_msg;
 
+        enum Agents {
+            CPU,
+            MEM,
+            NETWORK,
+            CPUSPEC,
+            SWAP,
+            SYSTEM,
+            VMEM
+        };
+
+        inline int GetAwaitTime (Agents agent) { return update_time_[agent]; }
+
     private:
 
         CPUAgentConfig cpu_{};
@@ -216,6 +228,16 @@ class Config {
         SwapAgentConfig swap_{};
         SystemAgentConfig system_{};
         VMemoryAgentConfig vmem_{};
+
+        std::map<Agents, int> update_time_ {
+            { CPU, cpu_.update_time },
+            { MEM, mem_.update_time },
+            { NETWORK, netw_.update_time },
+            { CPUSPEC, cpuspec_.update_time },
+            { SWAP, swap_.update_time },
+            { SYSTEM, system_.update_time },
+            { VMEM, vmem_.update_time }
+        };
 
         bool IsExistDirectory();
         inline bool CreateDirectory();

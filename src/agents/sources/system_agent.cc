@@ -13,7 +13,7 @@ void s21::SystemAgent::RefreshData(std::ofstream &file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->SYSTEM)
     return;
   static const std::string get_inodes{"df -i | sed -n '2p' | awk '{print $7}'"};
   static const std::string get_number_of_disks{

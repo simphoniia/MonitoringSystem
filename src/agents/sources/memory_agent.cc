@@ -16,7 +16,7 @@ void s21::MemoryAgent::RefreshData(std::ofstream& file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->MEM)
     return;
   static const std::string get_ram_total =
       "sysctl hw.memsize | grep -o -E \"\\d{1,20}\"";

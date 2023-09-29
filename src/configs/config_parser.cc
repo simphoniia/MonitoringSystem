@@ -215,6 +215,14 @@ void Config::ParseConfFiles() {
     current_file.open("agents_config/vmemory_agent.conf");
     ParseVMemory(current_file, vmem_);
     current_file.close();
+
+    update_time_[Agents::CPU] = cpu_.update_time;
+    update_time_[Agents::CPUSPEC] = cpuspec_.update_time;
+    update_time_[Agents::MEM] = mem_.update_time;
+    update_time_[Agents::NETWORK] = netw_.update_time;
+    update_time_[Agents::SWAP] = swap_.update_time;
+    update_time_[Agents::SYSTEM] = system_.update_time;
+    update_time_[Agents::VMEM] = vmem_.update_time;
 }
 
 int ParseCPU(std::ifstream& file, CPUAgentConfig& cpu_) {

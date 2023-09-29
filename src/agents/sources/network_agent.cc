@@ -11,7 +11,7 @@ void s21::NetworkAgent::RefreshData(std::ofstream& file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->NETWORK)
     return;
 
   site_ = config_->GetSite();

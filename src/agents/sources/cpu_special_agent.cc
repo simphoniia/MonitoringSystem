@@ -10,7 +10,7 @@ void s21::CpuSpecialAgent::RefreshData(
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->CPUSPEC)
     return;
   static const std::string get_cpu_idle_usage{
       "top -l 1 | grep 'CPU usage' | awk '{printf(\"%lf\", $7)}'"};

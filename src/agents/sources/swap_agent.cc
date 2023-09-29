@@ -10,7 +10,7 @@ void s21::SwapAgent::RefreshData(std::ofstream& file,
   if (!file.is_open()) return;
   if (!IsSetConfig()) return;
   if (std::chrono::duration_cast<std::chrono::seconds>(time - time_delta)
-          .count() < update_time_)
+          .count() < config_->SWAP)
     return;
   static const std::string get_total_swap{
       "sysctl vm.swapusage | awk '{printf(\"%lf\", $4)}'"};
