@@ -31,3 +31,12 @@
 *.exe
 *.out
 *.app
+s21_MonitoringSystem
+
+# Logs
+*.txt
+
+# Folders
+logs/
+objects/
+s21_MonitoringSystem.dSYM/
