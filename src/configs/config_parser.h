@@ -26,10 +26,25 @@ enum kAgentError {
     kFail
 };
 
-bool Compare(size_t val1, size_t val2, kCompareType& statement);
-bool Compare(int val1, int val2, kCompareType& statement);
-bool Compare(double val1, double val2, kCompareType& statement);
-bool Compare(long val1, long val2, kCompareType& statement);
+template <typename TYPE>
+bool Compare(TYPE val1, TYPE val2, kCompareType& statement) {
+    bool result = false;
+
+    if (statement == kCompareType::kEqual) 
+        result = (val1 == val2);
+    else if (statement == kCompareType::kEqualGreater)
+        result = (val1 >= val2);
+    else if (statement == kCompareType::kEqualLess)
+        result = (val1 <= val2);
+    else if (statement == kCompareType::kGreater)
+        result = (val1 > val2);
+    else if (statement == kCompareType::kNotEqual)
+        result = (val1 != val2);
+    else
+        result = (val1 < val2);
+
+    return result;
+}
 
 struct CPUAgentConfig {
     std::string name;
