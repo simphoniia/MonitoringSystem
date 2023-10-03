@@ -81,3 +81,5 @@ inline bool s21::SystemAgent::IsSetConfig() { return config_; }
 inline void s21::SystemAgent::SetConfigFile(Config *config) {
   config_ = config;
 }
+
+inline int s21::SystemAgent::GetAgentType() { return config_->SYSTEM; }

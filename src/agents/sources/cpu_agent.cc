@@ -46,3 +46,5 @@ void s21::CpuAgent::RefreshData(std::ofstream& file,
 inline bool s21::CpuAgent::IsSetConfig() { return config_; }
 
 inline void s21::CpuAgent::SetConfigFile(Config* config) { config_ = config; }
+
+inline int s21::CpuAgent::GetAgentType() { return config_->CPU; }

@@ -47,3 +47,5 @@ void s21::SwapAgent::RefreshData(std::ofstream& file,
 inline bool s21::SwapAgent::IsSetConfig() { return config_; }
 
 inline void s21::SwapAgent::SetConfigFile(Config* config) { config_ = config; }
+
+inline int s21::SwapAgent::GetAgentType() { return config_->SWAP; }

@@ -74,3 +74,5 @@ inline bool s21::NetworkAgent::IsSetConfig() { return config_; }
 inline void s21::NetworkAgent::SetConfigFile(Config* config) {
   config_ = config;
 }
+
+inline int s21::NetworkAgent::GetAgentType() { return config_->NETWORK; }

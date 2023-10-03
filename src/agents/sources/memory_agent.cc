@@ -101,3 +101,5 @@ inline bool s21::MemoryAgent::IsSetConfig() { return config_; }
 inline void s21::MemoryAgent::SetConfigFile(Config* config) {
   config_ = config;
 }
+
+inline int s21::MemoryAgent::GetAgentType() { return config_->MEM; }

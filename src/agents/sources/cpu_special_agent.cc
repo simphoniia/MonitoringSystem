@@ -47,3 +47,5 @@ inline bool s21::CpuSpecialAgent::IsSetConfig() { return config_; }
 inline void s21::CpuSpecialAgent::SetConfigFile(Config* config) {
   config_ = config;
 }
+
+inline int s21::CpuSpecialAgent::GetAgentType() { return config_->CPUSPEC; }

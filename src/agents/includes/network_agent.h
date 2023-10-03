@@ -13,6 +13,7 @@ class NetworkAgent : public s21::BaseAgent {
   void SetSiteToGetAccess(const std::string& site);
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
+  int GetAgentType() override;
 
  private:
   std::chrono::steady_clock::time_point time_delta =

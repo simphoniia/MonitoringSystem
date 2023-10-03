@@ -20,6 +20,7 @@ class BaseAgent {
 
   virtual bool IsSetConfig() = 0;
   virtual void SetConfigFile(Config* config) = 0;
+  virtual int GetAgentType() = 0;
 };
 };  // namespace s21
 

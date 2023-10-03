@@ -11,6 +11,7 @@ class CpuAgent : public s21::BaseAgent {
                    const std::string& timestamp) override;
   bool IsSetConfig() override;
   void SetConfigFile(Config* config) override;
+  int GetAgentType() override;
 
  private:
   std::chrono::steady_clock::time_point time_delta =

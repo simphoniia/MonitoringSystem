@@ -55,3 +55,5 @@ inline bool s21::VmemoryAgent::IsSetConfig() { return config_; }
 inline void s21::VmemoryAgent::SetConfigFile(Config* config) {
   config_ = config;
 }
+
+inline int s21::VmemoryAgent::GetAgentType() { return config_->VMEM; }
